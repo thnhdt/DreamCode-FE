@@ -16,6 +16,10 @@ import BasicTables from "./pages/Tables/BasicTables";
 import FormElements from "./pages/Forms/FormElements";
 import Blank from "./pages/Blank";
 import New from "./pages/New";
+import DepartmentManagement from "./pages/DepartmentManagement";
+import SupplierManagement from "./pages/SupplierManagement";
+import AssetManagement from "./pages/AssetManagement";
+import MyAssets from "./pages/MyAssets";
 import AppLayout from "./layout/AppLayout";
 import ProtectedRoute from "./components/auth/ProtectionGuard";
 import { ScrollToTop } from "./components/common/ScrollToTop";
@@ -32,12 +36,28 @@ export default function App() {
                     <Route element={<AppLayout />}>
                         <Route index path="/" element={<Home />} />
 
-            {/* Protected New Page (Admin only) */}
+            {/* Protected Admin Pages */}
             <Route path="/new" element={
               <ProtectedRoute roles={["admin"]}>
                 <New />
               </ProtectedRoute>
             } />
+            <Route path="/departments" element={
+              <ProtectedRoute roles={["admin"]}>
+                <DepartmentManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/suppliers" element={
+              <ProtectedRoute roles={["admin"]}>
+                <SupplierManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/assets" element={
+              <ProtectedRoute roles={["admin"]}>
+                <AssetManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/my-assets" element={<MyAssets />} />
 
             {/* Others Page */}
             <Route path="/profile" element={<UserProfiles />} />
