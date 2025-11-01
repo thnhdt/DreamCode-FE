@@ -15,7 +15,9 @@ import Calendar from "./pages/Calendar";
 import BasicTables from "./pages/Tables/BasicTables";
 import FormElements from "./pages/Forms/FormElements";
 import Blank from "./pages/Blank";
+import New from "./pages/New";
 import AppLayout from "./layout/AppLayout";
+import ProtectedRoute from "./components/auth/ProtectionGuard";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import Category from "./pages/Category/Category";
@@ -30,11 +32,18 @@ export default function App() {
                     <Route element={<AppLayout />}>
                         <Route index path="/" element={<Home />} />
 
-                        {/* Others Page */}
-                        <Route path="/profile" element={<UserProfiles />} />
-                        <Route path="/calendar" element={<Calendar />} />
-                        <Route path="/blank" element={<Blank />} />
-                        <Route path="/category" element={<Category />} />
+            {/* Protected New Page (Admin only) */}
+            <Route path="/new" element={
+              <ProtectedRoute roles={["admin"]}>
+                <New />
+              </ProtectedRoute>
+            } />
+
+            {/* Others Page */}
+            <Route path="/profile" element={<UserProfiles />} />
+            <Route path="/calendar" element={<Calendar />} />
+            <Route path="/blank" element={<Blank />} />
+            <Route path="/category" element={<Category />} />
 
                         {/* Forms */}
                         <Route
