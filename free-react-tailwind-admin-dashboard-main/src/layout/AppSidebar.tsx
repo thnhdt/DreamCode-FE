@@ -47,6 +47,7 @@ const othersItems: NavItem[] = [
       { name: "Phòng ban", path: "/departments", pro: false },
       { name: "Nhà cung cấp", path: "/suppliers", pro: false },
       { name: "Tài sản", path: "/assets", pro: false },
+      { name: "Loại", path: "/category", pro: false },
     ],
   },
   {
