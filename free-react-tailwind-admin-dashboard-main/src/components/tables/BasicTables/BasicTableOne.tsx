@@ -111,39 +111,39 @@ const tableData: Order[] = [
 
 export default function BasicTableOne() {
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+    <div className="bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-xl overflow-hidden">
       <div className="max-w-full overflow-x-auto">
         <Table>
           {/* Table Header */}
-          <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+          <TableHeader className="border-gray-100 dark:border-white/[0.05] border-b">
             <TableRow>
               <TableCell
                 isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                className="px-5 py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400 text-start"
               >
                 User
               </TableCell>
               <TableCell
                 isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                className="px-5 py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400 text-start"
               >
                 Project Name
               </TableCell>
               <TableCell
                 isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                className="px-5 py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400 text-start"
               >
                 Team
               </TableCell>
               <TableCell
                 isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                className="px-5 py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400 text-start"
               >
                 Status
               </TableCell>
               <TableCell
                 isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                className="px-5 py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400 text-start"
               >
                 Budget
               </TableCell>
@@ -154,9 +154,9 @@ export default function BasicTableOne() {
           <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
             {tableData.map((order) => (
               <TableRow key={order.id}>
-                <TableCell className="px-5 py-4 sm:px-6 text-start">
+                <TableCell className="px-5 sm:px-6 py-4 text-start">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 overflow-hidden rounded-full">
+                    <div className="rounded-full w-10 h-10 overflow-hidden">
                       <img
                         width={40}
                         height={40}
@@ -174,15 +174,15 @@ export default function BasicTableOne() {
                     </div>
                   </div>
                 </TableCell>
-                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
                   {order.projectName}
                 </TableCell>
-                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
                   <div className="flex -space-x-2">
                     {order.team.images.map((teamImage, index) => (
                       <div
                         key={index}
-                        className="w-6 h-6 overflow-hidden border-2 border-white rounded-full dark:border-gray-900"
+                        className="border-2 border-white dark:border-gray-900 rounded-full w-6 h-6 overflow-hidden"
                       >
                         <img
                           width={24}
@@ -195,15 +195,15 @@ export default function BasicTableOne() {
                     ))}
                   </div>
                 </TableCell>
-                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
                   <Badge
                     size="sm"
                     color={
                       order.status === "Active"
                         ? "success"
                         : order.status === "Pending"
-                        ? "warning"
-                        : "error"
+                          ? "warning"
+                          : "error"
                     }
                   >
                     {order.status}
