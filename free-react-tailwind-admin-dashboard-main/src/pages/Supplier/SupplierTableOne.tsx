@@ -10,13 +10,10 @@ import {
   TableHeader,
   TableRow,
 } from "../../components/ui/table";
-import { Modal } from "../../components/ui/modal";
-import Label from "../../components/form/Label";
-import Input from "../../components/form/input/InputField";
-import Button from "../../components/ui/button/Button";
-import DeletePopup from "./DeletePopup";
+
 import ModalAddSupplier from "./ModalAddSupplier";
 import EditPopup from "./EditPopup";
+import ModalConfirmDelete from "../../components/ui/modal/ModalConfirmDelete";
 
 interface Order {
   id: number;
@@ -78,7 +75,7 @@ const typeList: Order[] = [
   },
 ];
 
-export default function CategoryTableOne({ addIsOpen, closeAddModal }: any) {
+export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
   const [deleteIsOpen, setDeleteIsOpen] = useState<boolean>(false);
   const [editIsOpen, setEditIsOpen] = useState<boolean>(false);
 
@@ -167,7 +164,7 @@ export default function CategoryTableOne({ addIsOpen, closeAddModal }: any) {
                   {order.typeCode}
                 </TableCell>
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  <div className="flex items-center gap-3 cursor-pointer w-fit">
+                  <div className="flex items-center gap-3 w-fit cursor-pointer">
                     <FiEdit
                       onClick={openEditModal}
                       size={30}
@@ -176,7 +173,7 @@ export default function CategoryTableOne({ addIsOpen, closeAddModal }: any) {
                     <MdDelete
                       onClick={openDeleteModal}
                       size={30}
-                      className="p-1 rounded-full hover:bg-red-100 hover:text-red-500"
+                      className="hover:bg-red-100 p-1 rounded-full hover:text-red-500"
                     />
                   </div>
                 </TableCell>
@@ -194,7 +191,8 @@ export default function CategoryTableOne({ addIsOpen, closeAddModal }: any) {
         handleEdit={handleEdit}
       />
 
-      <DeletePopup
+      <ModalConfirmDelete
+        title="nhà cung cấp"
         deleteIsOpen={deleteIsOpen}
         closeDeleteModal={closeDeleteModal}
         handleDelete={handleDelete}

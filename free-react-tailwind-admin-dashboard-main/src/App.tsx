@@ -16,9 +16,9 @@ import BasicTables from "./pages/Tables/BasicTables";
 import FormElements from "./pages/Forms/FormElements";
 import Blank from "./pages/Blank";
 import New from "./pages/New";
-import DepartmentManagement from "./pages/DepartmentManagement";
+import Department from "./pages/Department/Department";
 import Supplier from "./pages/Supplier/Supplier";
-import AssetManagement from "./pages/AssetManagement";
+import AssetManagement from "./pages/AssetManage/AssetManage";
 import MyAssets from "./pages/MyAssets";
 import DepartmentAssets from "./pages/DepartmentAssets";
 import AppLayout from "./layout/AppLayout";
@@ -57,7 +57,7 @@ export default function App() {
               path="/departments"
               element={
                 <ProtectedRoute roles={["admin"]}>
-                  <DepartmentManagement />
+                  <Department />
                 </ProtectedRoute>
               }
             />
@@ -65,7 +65,7 @@ export default function App() {
               path="/suppliers"
               element={
                 <ProtectedRoute roles={["admin"]}>
-                  <SupplierManagement />
+                  <Supplier />
                 </ProtectedRoute>
               }
             />

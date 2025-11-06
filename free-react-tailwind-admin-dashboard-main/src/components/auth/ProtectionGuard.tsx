@@ -1,9 +1,15 @@
 import { Navigate } from "react-router";
 
-export default function ProtectedRoute({ children, roles }: { children: React.ReactNode, roles?: string[] }) {
+export default function ProtectedRoute({
+  children,
+  roles,
+}: {
+  children: React.ReactNode;
+  roles?: string[];
+}) {
   const token = localStorage.getItem("token");
   const userStr = localStorage.getItem("user");
-  
+  return children;
   // Parse user if exists
   let user = null;
   try {
@@ -27,5 +33,4 @@ export default function ProtectedRoute({ children, roles }: { children: React.Re
   }
 
   // ✅ Hợp lệ
-  return children;
 }
