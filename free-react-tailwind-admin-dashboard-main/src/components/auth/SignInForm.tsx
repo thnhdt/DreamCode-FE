@@ -27,13 +27,15 @@ export default function SignInForm() {
         // Mock successful login for dnag98
         const mockUser = {
           email: email,
-          role: "admin",
+          role: "ADMIN",
           name: "Dang Nguyen",
         };
         localStorage.setItem("token", "mock_token_dnag98");
         localStorage.setItem("user", JSON.stringify(mockUser));
         setLoading(false);
-        navigate("/new");
+        const role = mockUser.role;
+        const redirect = role === "ADMIN" ? "/users" : role === "ASSET_MANAGER" ? "/dashboard-operations" : role === "DEPT_MANAGER" ? "/department-assets" : role === "VIEWER" ? "/dashboard-overview" : "/my-assets";
+        navigate(redirect);
         return;
       }
 
@@ -51,11 +53,9 @@ export default function SignInForm() {
       localStorage.setItem("user", JSON.stringify(data.user));
       
       // Check role and navigate accordingly
-      if (data.user?.role === "admin") {
-        navigate("/new");
-      } else {
-        navigate("/");
-      }
+      const role: string = data.user?.role?.toUpperCase?.() || "USER";
+      const redirect = role === "ADMIN" ? "/users" : role === "ASSET_MANAGER" ? "/dashboard-operations" : role === "DEPT_MANAGER" ? "/department-assets" : role === "VIEWER" ? "/dashboard-overview" : "/my-assets";
+      navigate(redirect);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {
@@ -132,6 +132,9 @@ export default function SignInForm() {
               >
                 Sign Up
               </Link>
+            </p>
+            <p className="mt-2 text-sm text-center">
+              <Link to="/blank" className="text-gray-500 hover:text-gray-700 dark:text-gray-400">Quên mật khẩu?</Link>
             </p>
           </div>
         </div>
