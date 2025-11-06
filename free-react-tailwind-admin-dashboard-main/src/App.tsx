@@ -17,7 +17,7 @@ import FormElements from "./pages/Forms/FormElements";
 import Blank from "./pages/Blank";
 import New from "./pages/New";
 import DepartmentManagement from "./pages/DepartmentManagement";
-import SupplierManagement from "./pages/SupplierManagement";
+import Supplier from "./pages/Supplier/Supplier";
 import AssetManagement from "./pages/AssetManagement";
 import MyAssets from "./pages/MyAssets";
 import AppLayout from "./layout/AppLayout";
@@ -27,36 +27,48 @@ import Home from "./pages/Dashboard/Home";
 import Category from "./pages/Category/Category";
 
 export default function App() {
-    return (
-        <>
-            <Router>
-                <ScrollToTop />
-                <Routes>
-                    {/* Dashboard Layout */}
-                    <Route element={<AppLayout />}>
-                        <Route index path="/" element={<Home />} />
+  return (
+    <>
+      <Router>
+        <ScrollToTop />
+        <Routes>
+          {/* Dashboard Layout */}
+          <Route element={<AppLayout />}>
+            <Route index path="/" element={<Home />} />
 
             {/* Protected Admin Pages */}
-            <Route path="/new" element={
-              <ProtectedRoute roles={["admin"]}>
-                <New />
-              </ProtectedRoute>
-            } />
-            <Route path="/departments" element={
-              <ProtectedRoute roles={["admin"]}>
-                <DepartmentManagement />
-              </ProtectedRoute>
-            } />
-            <Route path="/suppliers" element={
-              <ProtectedRoute roles={["admin"]}>
-                <SupplierManagement />
-              </ProtectedRoute>
-            } />
-            <Route path="/assets" element={
-              <ProtectedRoute roles={["admin"]}>
-                <AssetManagement />
-              </ProtectedRoute>
-            } />
+            <Route
+              path="/new"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <New />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/departments"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <DepartmentManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/suppliers"
+              element={
+                // <ProtectedRoute roles={["admin"]}>
+                <Supplier />
+                // </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/assets"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <AssetManagement />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/my-assets" element={<MyAssets />} />
 
             {/* Others Page */}
@@ -65,34 +77,31 @@ export default function App() {
             <Route path="/blank" element={<Blank />} />
             <Route path="/category" element={<Category />} />
 
-                        {/* Forms */}
-                        <Route
-                            path="/form-elements"
-                            element={<FormElements />}
-                        />
+            {/* Forms */}
+            <Route path="/form-elements" element={<FormElements />} />
 
-                        {/* Tables */}
-                        <Route path="/basic-tables" element={<BasicTables />} />
+            {/* Tables */}
+            <Route path="/basic-tables" element={<BasicTables />} />
 
-                        {/* Ui Elements */}
-                        <Route path="/alerts" element={<Alerts />} />
-                        <Route path="/avatars" element={<Avatars />} />
-                        <Route path="/badge" element={<Badges />} />
-                        <Route path="/buttons" element={<Buttons />} />
-                        <Route path="/images" element={<Images />} />
-                        <Route path="/videos" element={<Videos />} />
+            {/* Ui Elements */}
+            <Route path="/alerts" element={<Alerts />} />
+            <Route path="/avatars" element={<Avatars />} />
+            <Route path="/badge" element={<Badges />} />
+            <Route path="/buttons" element={<Buttons />} />
+            <Route path="/images" element={<Images />} />
+            <Route path="/videos" element={<Videos />} />
 
-                        {/* Charts */}
-                        <Route path="/line-chart" element={<LineChart />} />
-                        <Route path="/bar-chart" element={<BarChart />} />
-                    </Route>
+            {/* Charts */}
+            <Route path="/line-chart" element={<LineChart />} />
+            <Route path="/bar-chart" element={<BarChart />} />
+          </Route>
 
-                    {/* Auth Layout */}
-                    <Route path="/signin" element={<SignIn />} />
-                    <Route path="/signup" element={<SignUp />} />
-                    <Route path="*" element={<NotFound />} />
-                </Routes>
-            </Router>
-        </>
-    );
+          {/* Auth Layout */}
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Router>
+    </>
+  );
 }
