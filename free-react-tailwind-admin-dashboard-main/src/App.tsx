@@ -20,11 +20,19 @@ import DepartmentManagement from "./pages/DepartmentManagement";
 import SupplierManagement from "./pages/SupplierManagement";
 import AssetManagement from "./pages/AssetManagement";
 import MyAssets from "./pages/MyAssets";
+import DepartmentAssets from "./pages/DepartmentAssets";
 import AppLayout from "./layout/AppLayout";
 import ProtectedRoute from "./components/auth/ProtectionGuard";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import Category from "./pages/Category/Category";
+import Depreciation from "./pages/Depreciation";
+import AssetReport from "./pages/AssetReport";
+import OverviewDashboard from "./pages/Dashboards/OverviewDashboard";
+import OperationsDashboard from "./pages/Dashboards/OperationsDashboard";
+import ReportSettings from "./pages/ReportSettings";
+import UserManagement from "./pages/UserManagement";
+import RolesPermissions from "./pages/RolesPermissions";
 
 export default function App() {
     return (
@@ -57,7 +65,25 @@ export default function App() {
                 <AssetManagement />
               </ProtectedRoute>
             } />
+            <Route path="/department-assets" element={
+              <ProtectedRoute roles={["admin"]}>
+                <DepartmentAssets />
+              </ProtectedRoute>
+            } />
             <Route path="/my-assets" element={<MyAssets />} />
+
+            {/* Asset Manager */}
+            <Route path="/depreciation" element={<Depreciation />} />
+            <Route path="/asset-report" element={<AssetReport />} />
+            <Route path="/dashboard-operations" element={<OperationsDashboard />} />
+
+            {/* Viewer */}
+            <Route path="/dashboard-overview" element={<OverviewDashboard />} />
+            <Route path="/report-settings" element={<ReportSettings />} />
+
+            {/* Admin */}
+            <Route path="/users" element={<UserManagement />} />
+            <Route path="/roles" element={<RolesPermissions />} />
 
             {/* Others Page */}
             <Route path="/profile" element={<UserProfiles />} />

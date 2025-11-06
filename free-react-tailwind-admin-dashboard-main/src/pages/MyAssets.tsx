@@ -4,86 +4,67 @@ import PageMeta from "../components/common/PageMeta";
 import ComponentCard from "../components/common/ComponentCard";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../components/ui/table";
 import Badge from "../components/ui/badge/Badge";
+import Button from "../components/ui/button/Button";
+import { Modal } from "../components/ui/modal";
+import { useModal } from "../hooks/useModal";
+import Select from "../components/form/Select";
+import TextArea from "../components/form/input/TextArea";
+import Alert from "../components/ui/alert/Alert";
 
 interface Asset {
   id: string;
   name: string;
-  category: string;
-  department: string;
-  purchaseDate: string;
-  originalValue: number;
-  depreciationRate: number;
-  status: "in_stock" | "assigned" | "maintenance";
-  assignedTo?: string;
-  assignedDate?: string;
+  serial: string;
+  status: "in_use" | "maintenance" | "lost";
 }
 
 export default function MyAssets() {
   const [myAssets, setMyAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
 
-  // Mock API call
-  const fetchMyAssets = async () => {
-    setLoading(true);
-    setError("");
-    
-    try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      
-      // Get user info from localStorage
-      const userStr = localStorage.getItem("user");
-      if (!userStr) {
-        setError("Không tìm thấy thông tin người dùng");
-        return;
-      }
+  const { isOpen, openModal, closeModal } = useModal(false);
+  const [selectedAssetId, setSelectedAssetId] = useState<string>("");
+  const [reason, setReason] = useState<string>("");
 
-      const user = JSON.parse(userStr);
-      
-      // Get all assets from localStorage
-      const storedAssets = localStorage.getItem("assets");
-      if (!storedAssets) {
-        setMyAssets([]);
-        return;
-      }
-
-      const allAssets = JSON.parse(storedAssets) as Asset[];
-      
-      // Filter assets assigned to current user
-      const userAssets = allAssets.filter(
-        (asset) =>
-          asset.assignedTo && asset.status === "assigned" && asset.assignedTo.toLowerCase().includes(user.name?.toLowerCase() || user.email?.toLowerCase())
-      );
-
-      setMyAssets(userAssets);
-    } catch (err) {
-      setError("Không thể tải dữ liệu tài sản");
-      console.error("Error fetching my assets:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Mock: seed some assets for the current user
   useEffect(() => {
-    fetchMyAssets();
+    const load = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        await new Promise((r) => setTimeout(r, 300));
+        const mock: Asset[] = [
+          { id: "AS-001", name: "Laptop Dell XPS 13", serial: "SN-DX13-2023-001", status: "in_use" },
+          { id: "AS-002", name: "Chuột Logitech MX", serial: "SN-LGMX-2022-145", status: "in_use" },
+          { id: "AS-003", name: "Màn hình LG 27\"", serial: "SN-LG27-2021-332", status: "maintenance" },
+        ];
+        setMyAssets(mock);
+      } catch {
+        setError("Không thể tải dữ liệu tài sản");
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
   }, []);
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(value);
+  const assetOptions = myAssets.map((a) => ({ value: a.id, label: a.name }));
+
+  const handleOpenReport = (assetId?: string) => {
+    if (assetId) setSelectedAssetId(assetId);
+    openModal();
   };
 
-  // Calculate current value with depreciation
-  const calculateCurrentValue = (originalValue: number, purchaseDate: string, depreciationRate: number) => {
-    const now = new Date();
-    const purchase = new Date(purchaseDate);
-    const yearsDiff = (now.getTime() - purchase.getTime()) / (1000 * 60 * 60 * 24 * 365);
-    const depreciation = (yearsDiff * depreciationRate) / 100;
-    const currentValue = originalValue * (1 - Math.min(depreciation, 1));
-    return Math.max(currentValue, 0);
+  const handleSubmitReport = () => {
+    // mock create ticket
+    setTimeout(() => {
+      closeModal();
+      setReason("");
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 2500);
+    }, 250);
   };
 
   return (
@@ -95,6 +76,14 @@ export default function MyAssets() {
       <PageBreadcrumb pageTitle="Tài sản của tôi" />
       
       <div className="space-y-6">
+        {showSuccess && (
+          <Alert
+            variant="success"
+            title="Đã tạo ticket thành công"
+            message="Chúng tôi sẽ xử lý sớm nhất."
+            showLink={false}
+          />
+        )}
         <ComponentCard title="Danh sách Tài sản được gán">
           {loading ? (
             <div className="py-12 text-center">
@@ -117,66 +106,39 @@ export default function MyAssets() {
                   <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                     <TableRow>
                       <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                        Mã tài sản
-                      </TableCell>
-                      <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                         Tên tài sản
                       </TableCell>
                       <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                        Danh mục
-                      </TableCell>
-                      <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                        Phòng ban
-                      </TableCell>
-                      <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                        Nguyên giá
-                      </TableCell>
-                      <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                        Giá trị hiện tại
-                      </TableCell>
-                      <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                        Ngày được gán
+                        Số serial
                       </TableCell>
                       <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                         Trạng thái
+                      </TableCell>
+                      <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                        Hành động
                       </TableCell>
                     </TableRow>
                   </TableHeader>
 
                   <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                     {myAssets.map((asset) => {
-                      const currentValue = calculateCurrentValue(
-                        asset.originalValue,
-                        asset.purchaseDate,
-                        asset.depreciationRate
-                      );
                       return (
                         <TableRow key={asset.id}>
-                          <TableCell className="px-5 py-4 text-gray-800 text-theme-sm dark:text-white/90 font-medium">
-                            {asset.id}
-                          </TableCell>
                           <TableCell className="px-5 py-4 text-gray-800 text-theme-sm dark:text-white/90 font-medium">
                             {asset.name}
                           </TableCell>
                           <TableCell className="px-5 py-4 text-gray-500 text-theme-sm dark:text-gray-400">
-                            {asset.category}
-                          </TableCell>
-                          <TableCell className="px-5 py-4 text-gray-500 text-theme-sm dark:text-gray-400">
-                            {asset.department}
-                          </TableCell>
-                          <TableCell className="px-5 py-4 text-gray-500 text-theme-sm dark:text-gray-400">
-                            {formatCurrency(asset.originalValue)}
-                          </TableCell>
-                          <TableCell className="px-5 py-4 text-gray-800 text-theme-sm dark:text-white/90 font-medium">
-                            {formatCurrency(currentValue)}
-                          </TableCell>
-                          <TableCell className="px-5 py-4 text-gray-500 text-theme-sm dark:text-gray-400">
-                            {asset.assignedDate}
+                            {asset.serial}
                           </TableCell>
                           <TableCell className="px-5 py-4 text-start">
-                            <Badge size="sm" color="success">
-                              Đang sử dụng
+                            <Badge size="sm" color={asset.status === "in_use" ? "success" : asset.status === "maintenance" ? "warning" : "error"}>
+                              {asset.status === "in_use" ? "Đang sử dụng" : asset.status === "maintenance" ? "Bảo trì" : "Mất"}
                             </Badge>
+                          </TableCell>
+                          <TableCell className="px-5 py-4">
+                            <Button size="sm" variant="outline" onClick={() => handleOpenReport(asset.id)}>
+                              Báo cáo sự cố
+                            </Button>
                           </TableCell>
                         </TableRow>
                       );
@@ -194,6 +156,38 @@ export default function MyAssets() {
           )}
         </ComponentCard>
       </div>
+
+      {/* Report Issue Modal */}
+      <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[600px] m-4">
+        <div className="relative w-full p-4 overflow-y-auto bg-white no-scrollbar rounded-3xl dark:bg-gray-900 lg:p-9">
+          <div className="px-1 pr-10">
+            <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">Báo cáo sự cố tài sản</h4>
+            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">Vui lòng chọn tài sản và mô tả sự cố.</p>
+          </div>
+          <form onSubmit={(e) => { e.preventDefault(); handleSubmitReport(); }} className="flex flex-col gap-5 px-1">
+            <div>
+              <Select
+                options={assetOptions}
+                placeholder="Chọn tài sản"
+                onChange={(val) => setSelectedAssetId(val)}
+                defaultValue={selectedAssetId}
+              />
+            </div>
+            <div>
+              <TextArea
+                rows={5}
+                placeholder="Mô tả lý do / sự cố gặp phải"
+                value={reason}
+                onChange={(val) => setReason(val)}
+              />
+            </div>
+            <div className="flex items-center gap-3 lg:justify-end">
+              <Button size="sm" variant="outline" onClick={closeModal} type="button">Đóng</Button>
+              <Button size="sm" type="submit" disabled={!selectedAssetId || !reason.trim()}>Gửi</Button>
+            </div>
+          </form>
+        </div>
+      </Modal>
     </>
   );
 }
