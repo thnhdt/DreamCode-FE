@@ -9,7 +9,6 @@ export default function ProtectedRoute({
 }) {
   const token = localStorage.getItem("token");
   const userStr = localStorage.getItem("user");
-  return children;
   // Parse user if exists
   let user = null;
   try {
@@ -33,4 +32,5 @@ export default function ProtectedRoute({
   }
 
   // ✅ Hợp lệ
+  return children;
 }
