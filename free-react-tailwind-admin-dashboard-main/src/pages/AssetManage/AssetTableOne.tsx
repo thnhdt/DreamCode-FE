@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import * as XLSX from "xlsx";
 
 import { MdDelete } from "react-icons/md";
 import { FiEdit } from "react-icons/fi";
+import { CiSearch } from "react-icons/ci";
+import { IoIosInformationCircle } from "react-icons/io";
+import { FaDownload } from "react-icons/fa6";
 
 import {
   Table,
@@ -14,6 +18,8 @@ import {
 import ModalAddAsset from "./ModalAddAsset";
 import EditPopup from "./EditPopup";
 import ModalConfirmDelete from "../../components/ui/modal/ModalConfirmDelete";
+import FilterPopup from "./FilterPopup.tsx";
+import HistoryModal from "./HistoryModal.tsx";
 
 export interface Asset {
   id: number;
@@ -121,6 +127,35 @@ export const assetList: Asset[] = [
 export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
   const [deleteIsOpen, setDeleteIsOpen] = useState<boolean>(false);
   const [editIsOpen, setEditIsOpen] = useState<boolean>(false);
+  const [filterIsOpen, setFilterIsOpen] = useState<boolean>(false);
+  const [historyIsOpen, setHistoryIsOpen] = useState<boolean>(false);
+  const [filteredAssets, setFilteredAssets] = useState<Asset[]>(assetList);
+
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value.toLowerCase();
+
+    const filteredAssets = assetList.filter(
+      (asset) =>
+        asset.assetName.toLowerCase().includes(query) ||
+        asset.assetCode.toLowerCase().includes(query) ||
+        asset.user.toLowerCase().includes(query)
+    );
+
+    setFilteredAssets(filteredAssets);
+  };
+
+  const handleDownloadExcel = () => {
+    // 1) Tạo worksheet từ JSON
+    const ws = XLSX.utils.json_to_sheet(assetList);
+
+    // 2) Tạo workbook và gắn sheet
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Tài sản");
+
+    XLSX.writeFile(wb, "tai_san.xlsx");
+  };
 
   const handleDelete = () => {
     // Handle delete logic here
@@ -150,6 +185,37 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
     setEditIsOpen(false);
   };
 
+  const handleFilter = (filteredChoices: any) => {
+    console.log("Filtered choices:", filteredChoices);
+
+    const filteredAssets = assetList.filter(
+      (asset) =>
+        asset.status.includes(filteredChoices.trangThaiTaiSan) &&
+        asset.type.includes(filteredChoices.loaiTaiSan || "") &&
+        asset.department.includes(filteredChoices.phongBan || "")
+    );
+
+    setFilteredAssets(filteredAssets);
+
+    setFilterIsOpen(false);
+  };
+
+  const openFilterModal = () => {
+    setFilterIsOpen(true);
+  };
+
+  const closeFilterModal = () => {
+    setFilterIsOpen(false);
+  };
+
+  const openHistoryModal = () => {
+    setHistoryIsOpen(true);
+  };
+
+  const closeHistoryModal = () => {
+    setHistoryIsOpen(false);
+  };
+
   return (
     <div className="bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-xl overflow-hidden">
       <div className="flex justify-end items-center gap-3 mb-2 pt-4 pr-4">
@@ -157,32 +223,22 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
           <form>
             <div className="relative">
               <span className="top-1/2 left-4 absolute -translate-y-1/2 pointer-events-none">
-                <svg
-                  className="fill-gray-500 dark:fill-gray-400"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z"
-                    fill=""
-                  />
-                </svg>
+                <CiSearch size={22} className="text-gray-600" />
               </span>
               <input
-                // ref={inputRef}
+                ref={inputRef}
                 type="text"
+                onChange={handleSearch}
                 placeholder="Search or type command..."
                 className="bg-transparent dark:bg-dark-900 dark:bg-white/[0.03] shadow-theme-xs py-2.5 pr-14 pl-12 border border-gray-200 focus:border-brand-300 dark:border-gray-800 dark:focus:border-brand-800 rounded-lg focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 w-full xl:w-[430px] h-11 text-gray-800 dark:placeholder:text-white/30 dark:text-white/90 placeholder:text-gray-400 text-sm"
               />
             </div>
           </form>
         </div>
-        <button className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-white/[0.03] shadow-theme-xs px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg font-medium text-gray-700 text-theme-sm hover:text-gray-800 dark:hover:text-gray-200 dark:text-gray-400">
+        <button
+          className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-white/[0.03] shadow-theme-xs px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg font-medium text-gray-700 text-theme-sm hover:text-gray-800 dark:hover:text-gray-200 dark:text-gray-400"
+          onClick={openFilterModal}
+        >
           <svg
             className="fill-white dark:fill-gray-800 stroke-current"
             width="20"
@@ -220,8 +276,24 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
           </svg>
           Filter
         </button>
-        <button className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-white/[0.03] shadow-theme-xs px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg font-medium text-gray-700 text-theme-sm hover:text-gray-800 dark:hover:text-gray-200 dark:text-gray-400">
-          See all
+        <button
+          className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-white/[0.03] shadow-theme-xs px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg font-medium text-gray-700 text-theme-sm hover:text-gray-800 dark:hover:text-gray-200 dark:text-gray-400"
+          onClick={() => {
+            setFilteredAssets(assetList);
+            if (inputRef.current) {
+              inputRef.current.value = "";
+            }
+          }}
+        >
+          Tất cả
+        </button>
+
+        <button
+          className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-white/[0.03] shadow-theme-xs px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg font-medium text-gray-700 text-theme-sm hover:text-gray-800 dark:hover:text-gray-200 dark:text-gray-400"
+          onClick={handleDownloadExcel}
+        >
+          <FaDownload size={16} />
+          Tải xuống
         </button>
       </div>
       <div className="max-w-full overflow-x-auto">
@@ -279,7 +351,7 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
 
           {/* Table Body */}
           <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-            {assetList.map((asset) => (
+            {filteredAssets.map((asset) => (
               <TableRow key={asset.id}>
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
                   {asset.assetName}
@@ -301,16 +373,22 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
                 </TableCell>
 
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  <div className="flex items-center gap-3 w-fit cursor-pointer">
+                  <div className="flex items-center gap-2 w-fit cursor-pointer">
                     <FiEdit
                       onClick={openEditModal}
                       size={30}
                       className="hover:bg-blue-50 p-1 rounded-full hover:text-[#6082B6]"
                     />
                     <MdDelete
-                      //   onClick={openDeleteModal}
+                      onClick={openDeleteModal}
                       size={30}
                       className="hover:bg-red-100 p-1 rounded-full hover:text-red-500"
+                    />
+
+                    <IoIosInformationCircle
+                      onClick={openHistoryModal}
+                      size={30}
+                      className="hover:bg-blue-50 p-1 rounded-full hover:text-[#6082B6]"
                     />
                   </div>
                 </TableCell>
@@ -328,8 +406,19 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
         handleEdit={handleEdit}
       />
 
+      <FilterPopup
+        filterIsOpen={filterIsOpen}
+        closeFilterModal={closeFilterModal}
+        handleFilter={handleFilter}
+      />
+
+      <HistoryModal
+        historyIsOpen={historyIsOpen}
+        closeHistoryModal={closeHistoryModal}
+      />
+
       <ModalConfirmDelete
-        title="phòng ban"
+        title="tài sản"
         deleteIsOpen={deleteIsOpen}
         closeDeleteModal={closeDeleteModal}
         handleDelete={handleDelete}

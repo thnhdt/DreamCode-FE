@@ -22,7 +22,7 @@ export default function AssetManage() {
               onClick={openModal}
               className="lg:inline-flex flex justify-center items-center gap-2 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-white/[0.03] shadow-theme-xs ml-auto px-6 py-2 border border-gray-300 dark:border-gray-700 rounded-lg w-full lg:w-auto font-medium text-gray-700 hover:text-gray-800 dark:hover:text-gray-200 dark:text-gray-400 text-sm"
             >
-              New
+              Thêm mới
             </button>
           </div>
           <AssetTableOne addIsOpen={isOpen} closeAddModal={closeModal} />

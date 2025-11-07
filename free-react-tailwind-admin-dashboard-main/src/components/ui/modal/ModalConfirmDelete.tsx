@@ -18,8 +18,9 @@ export default function ModalConfirmDelete({
             Xác nhận xóa {title}
           </h4>
           <p className="mb-6 lg:mb-7 text-gray-500 dark:text-gray-400 text-sm">
-            Bạn có chắc chắn muốn xóa {title} không? Hành động này không thể
-            hoàn tác.
+            Bạn có chắc chắn muốn xóa {title} này không?
+            <br />
+            Hành động này không thể hoàn tác.
           </p>
         </div>
 
