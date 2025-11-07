@@ -16,9 +16,9 @@ import BasicTables from "./pages/Tables/BasicTables";
 import FormElements from "./pages/Forms/FormElements";
 import Blank from "./pages/Blank";
 import New from "./pages/New";
-import DepartmentManagement from "./pages/DepartmentManagement";
-import SupplierManagement from "./pages/SupplierManagement";
-import AssetManagement from "./pages/AssetManagement";
+import Department from "./pages/Department/Department";
+import Supplier from "./pages/Supplier/Supplier";
+import AssetManagement from "./pages/AssetManage/AssetManage";
 import MyAssets from "./pages/MyAssets";
 import DepartmentAssets from "./pages/DepartmentAssets";
 import AppLayout from "./layout/AppLayout";
@@ -35,47 +35,65 @@ import UserManagement from "./pages/UserManagement";
 import RolesPermissions from "./pages/RolesPermissions";
 
 export default function App() {
-    return (
-        <>
-            <Router>
-                <ScrollToTop />
-                <Routes>
-                    {/* Dashboard Layout */}
-                    <Route element={<AppLayout />}>
-                        <Route index path="/" element={<Home />} />
+  return (
+    <>
+      <Router>
+        <ScrollToTop />
+        <Routes>
+          {/* Dashboard Layout */}
+          <Route element={<AppLayout />}>
+            <Route index path="/" element={<Home />} />
 
             {/* Protected Admin Pages */}
-            <Route path="/new" element={
-              <ProtectedRoute roles={["admin"]}>
-                <New />
-              </ProtectedRoute>
-            } />
-            <Route path="/departments" element={
-              <ProtectedRoute roles={["admin"]}>
-                <DepartmentManagement />
-              </ProtectedRoute>
-            } />
-            <Route path="/suppliers" element={
-              <ProtectedRoute roles={["admin"]}>
-                <SupplierManagement />
-              </ProtectedRoute>
-            } />
-            <Route path="/assets" element={
-              <ProtectedRoute roles={["admin"]}>
-                <AssetManagement />
-              </ProtectedRoute>
-            } />
-            <Route path="/department-assets" element={
-              <ProtectedRoute roles={["admin"]}>
-                <DepartmentAssets />
-              </ProtectedRoute>
-            } />
+            <Route
+              path="/new"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <New />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/departments"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <Department />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/suppliers"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <Supplier />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/assets"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <AssetManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/department-assets"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <DepartmentAssets />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/my-assets" element={<MyAssets />} />
 
             {/* Asset Manager */}
             <Route path="/depreciation" element={<Depreciation />} />
             <Route path="/asset-report" element={<AssetReport />} />
-            <Route path="/dashboard-operations" element={<OperationsDashboard />} />
+            <Route
+              path="/dashboard-operations"
+              element={<OperationsDashboard />}
+            />
 
             {/* Viewer */}
             <Route path="/dashboard-overview" element={<OverviewDashboard />} />
@@ -91,34 +109,31 @@ export default function App() {
             <Route path="/blank" element={<Blank />} />
             <Route path="/category" element={<Category />} />
 
-                        {/* Forms */}
-                        <Route
-                            path="/form-elements"
-                            element={<FormElements />}
-                        />
+            {/* Forms */}
+            <Route path="/form-elements" element={<FormElements />} />
 
-                        {/* Tables */}
-                        <Route path="/basic-tables" element={<BasicTables />} />
+            {/* Tables */}
+            <Route path="/basic-tables" element={<BasicTables />} />
 
-                        {/* Ui Elements */}
-                        <Route path="/alerts" element={<Alerts />} />
-                        <Route path="/avatars" element={<Avatars />} />
-                        <Route path="/badge" element={<Badges />} />
-                        <Route path="/buttons" element={<Buttons />} />
-                        <Route path="/images" element={<Images />} />
-                        <Route path="/videos" element={<Videos />} />
+            {/* Ui Elements */}
+            <Route path="/alerts" element={<Alerts />} />
+            <Route path="/avatars" element={<Avatars />} />
+            <Route path="/badge" element={<Badges />} />
+            <Route path="/buttons" element={<Buttons />} />
+            <Route path="/images" element={<Images />} />
+            <Route path="/videos" element={<Videos />} />
 
-                        {/* Charts */}
-                        <Route path="/line-chart" element={<LineChart />} />
-                        <Route path="/bar-chart" element={<BarChart />} />
-                    </Route>
+            {/* Charts */}
+            <Route path="/line-chart" element={<LineChart />} />
+            <Route path="/bar-chart" element={<BarChart />} />
+          </Route>
 
-                    {/* Auth Layout */}
-                    <Route path="/signin" element={<SignIn />} />
-                    <Route path="/signup" element={<SignUp />} />
-                    <Route path="*" element={<NotFound />} />
-                </Routes>
-            </Router>
-        </>
-    );
+          {/* Auth Layout */}
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Router>
+    </>
+  );
 }

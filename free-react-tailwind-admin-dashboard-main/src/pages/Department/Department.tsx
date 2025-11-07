@@ -1,10 +1,10 @@
 import ComponentCard from "../../components/common/ComponentCard";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
-import CategoryTableOne from "../../components/tables/CategoryTables/CategoryTableOne";
+import DepartmentTableOne from "./DepartmentTableOne";
 import { useModal } from "../../hooks/useModal";
 
-export default function Category() {
+export default function Department() {
   const { isOpen, openModal, closeModal } = useModal();
 
   return (
@@ -13,10 +13,10 @@ export default function Category() {
         title="React.js Profile Dashboard | TailAdmin - Next.js Admin Dashboard Template"
         description="This is React.js Profile Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
       />
-      <PageBreadcrumb pageTitle="Quản lý loại tài sản" />
+      <PageBreadcrumb pageTitle="Quản lý phòng ban" />
 
       <div className="space-y-6">
-        <ComponentCard title="Danh sách loại tài sản">
+        <ComponentCard title="Danh sách phòng ban">
           <div className="flex items-end -mt-18 w-full">
             <button
               onClick={openModal}
@@ -25,7 +25,7 @@ export default function Category() {
               New
             </button>
           </div>
-          <CategoryTableOne isOpen={isOpen} closeModal={closeModal} />
+          <DepartmentTableOne addIsOpen={isOpen} closeAddModal={closeModal} />
         </ComponentCard>
       </div>
     </>

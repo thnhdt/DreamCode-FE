@@ -1,10 +1,7 @@
 import { useState } from "react";
-import Input from "../../form/input/InputField";
-import Label from "../../form/Label";
-import Button from "../../ui/button/Button";
-import { Modal } from "../../ui/modal";
 
 import { MdDelete } from "react-icons/md";
+import { FiEdit } from "react-icons/fi";
 
 import {
   Table,
@@ -12,7 +9,11 @@ import {
   TableCell,
   TableHeader,
   TableRow,
-} from "../../ui/table";
+} from "../../components/ui/table";
+
+import ModalAddSupplier from "./ModalAddSupplier";
+import EditPopup from "./EditPopup";
+import ModalConfirmDelete from "../../components/ui/modal/ModalConfirmDelete";
 
 interface Order {
   id: number;
@@ -74,18 +75,13 @@ const typeList: Order[] = [
   },
 ];
 
-export default function CategoryTableOne({ isOpen, closeModal }: any) {
+export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
   const [deleteIsOpen, setDeleteIsOpen] = useState<boolean>(false);
-
-  const handleSave = () => {
-    // Handle save logic here
-    console.log("Saving changes...");
-    closeModal();
-  };
+  const [editIsOpen, setEditIsOpen] = useState<boolean>(false);
 
   const handleDelete = () => {
-    // Handle save logic here
-    console.log("Delete changes...");
+    // Handle delete logic here
+    console.log("Deleting item...");
     closeDeleteModal();
   };
 
@@ -95,6 +91,20 @@ export default function CategoryTableOne({ isOpen, closeModal }: any) {
 
   const closeDeleteModal = () => {
     setDeleteIsOpen(false);
+  };
+
+  const handleEdit = () => {
+    // Handle edit logic here
+    console.log("Editing item...");
+    setEditIsOpen(false);
+  };
+
+  const openEditModal = () => {
+    setEditIsOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setEditIsOpen(false);
   };
 
   return (
@@ -108,13 +118,25 @@ export default function CategoryTableOne({ isOpen, closeModal }: any) {
                 isHeader
                 className="px-5 py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400 text-start"
               >
-                Tên loại
+                Tên nhà cung cấp
               </TableCell>
               <TableCell
                 isHeader
                 className="px-5 py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400 text-start"
               >
-                Mã loại
+                Mã số thuế
+              </TableCell>
+              <TableCell
+                isHeader
+                className="px-5 py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400 text-start"
+              >
+                SĐT
+              </TableCell>
+              <TableCell
+                isHeader
+                className="px-5 py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400 text-start"
+              >
+                Địa chỉ
               </TableCell>
               <TableCell
                 isHeader
@@ -136,11 +158,23 @@ export default function CategoryTableOne({ isOpen, closeModal }: any) {
                   {order.typeCode}
                 </TableCell>
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
-                  <div
-                    className="hover:bg-red-100 ml-3 p-1 rounded-full w-fit hover:text-red-500 cursor-pointer"
-                    onClick={openDeleteModal}
-                  >
-                    <MdDelete size={24} />
+                  {order.typeCode}
+                </TableCell>
+                <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
+                  {order.typeCode}
+                </TableCell>
+                <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                  <div className="flex items-center gap-3 w-fit cursor-pointer">
+                    <FiEdit
+                      onClick={openEditModal}
+                      size={30}
+                      className="hover:bg-blue-50 p-1 rounded-full hover:text-[#6082B6]"
+                    />
+                    <MdDelete
+                      onClick={openDeleteModal}
+                      size={30}
+                      className="hover:bg-red-100 p-1 rounded-full hover:text-red-500"
+                    />
                   </div>
                 </TableCell>
               </TableRow>
@@ -149,68 +183,20 @@ export default function CategoryTableOne({ isOpen, closeModal }: any) {
         </Table>
       </div>
 
-      <Modal isOpen={isOpen} onClose={closeModal} className="m-4 max-w-[700px]">
-        <div className="relative bg-white dark:bg-gray-900 p-4 lg:p-11 rounded-3xl w-full max-w-[700px] overflow-y-auto no-scrollbar">
-          <div className="px-2 pr-14">
-            <h4 className="mb-6 font-semibold text-gray-800 dark:text-white/90 text-2xl">
-              Thêm loại tài sản mới
-            </h4>
-          </div>
-          <form className="flex flex-col">
-            <div className="px-2 pb-3 h-[450px] overflow-y-auto custom-scrollbar">
-              <div>
-                <div className="gap-x-6 gap-y-5 grid grid-cols-1 lg:grid-cols-2">
-                  <div>
-                    <Label>Tên loại</Label>
-                    <Input type="text" />
-                  </div>
+      <ModalAddSupplier addIsOpen={addIsOpen} closeAddModal={closeAddModal} />
 
-                  <div>
-                    <Label>Mã loại</Label>
-                    <Input type="text" />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="flex lg:justify-end items-center gap-3 mt-6 px-2">
-              <Button size="sm" variant="outline" onClick={closeModal}>
-                Đóng
-              </Button>
-              <Button size="sm" onClick={handleSave}>
-                Lưu thay đổi
-              </Button>
-            </div>
-          </form>
-        </div>
-      </Modal>
+      <EditPopup
+        editIsOpen={editIsOpen}
+        closeEditModal={closeEditModal}
+        handleEdit={handleEdit}
+      />
 
-      {/* popup confirm delete */}
-      <div
-        className={`fixed inset-0 ml-[290px] flex justify-center items-center bg-black/40 bg-opacity-50 ${
-          deleteIsOpen ? "block" : "hidden"
-        }`}
-      >
-        <div className="bg-white dark:bg-gray-900 mx-4 p-4 lg:p-11 rounded-3xl w-full max-w-[500px] overflow-y-auto no-scrollbar">
-          <div className="px-2 pr-14">
-            <h4 className="mb-2 font-semibold text-gray-800 dark:text-white/90 text-2xl">
-              Xác nhận xóa loại tài sản
-            </h4>
-            <p className="mb-6 lg:mb-7 text-gray-500 dark:text-gray-400 text-sm">
-              Bạn có chắc chắn muốn xóa loại tài sản này? Hành động này không
-              thể hoàn tác.
-            </p>
-          </div>
-
-          <div className="flex lg:justify-end items-center gap-3 mt-6 px-2">
-            <Button size="sm" variant="outline" onClick={closeDeleteModal}>
-              Đóng
-            </Button>
-            <Button size="sm" variant="destructive" onClick={handleDelete}>
-              Xóa
-            </Button>
-          </div>
-        </div>
-      </div>
+      <ModalConfirmDelete
+        title="nhà cung cấp"
+        deleteIsOpen={deleteIsOpen}
+        closeDeleteModal={closeDeleteModal}
+        handleDelete={handleDelete}
+      />
     </div>
   );
 }
