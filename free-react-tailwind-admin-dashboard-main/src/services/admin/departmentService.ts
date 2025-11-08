@@ -23,7 +23,7 @@ export const createDepartment = async (
 ): Promise<DepartmentResponse> => {
   try {
     const response = await axiosInstance.post<DepartmentResponse>(
-      `${ADMIN_API_BASE_URL}/departments`,
+      `${ADMIN_API_BASE_URL}/departments/active`,
       data
     );
     return response.data;
@@ -53,7 +53,7 @@ export const getDepartments = async (
   return apiWithMockPaginated(
     async () => {
       const response = await axiosInstance.get<DepartmentResponse[] | PaginatedResponse<DepartmentResponse>>(
-        `${ADMIN_API_BASE_URL}/departments`,
+        `${ADMIN_API_BASE_URL}/departments/active`,
         { params }
       );
       return response.data;
