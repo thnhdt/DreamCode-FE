@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-
 import { MdDelete } from "react-icons/md";
 import { FiEdit } from "react-icons/fi";
 
@@ -14,9 +13,8 @@ import {
 import ModalAddDepartment from "./ModalAddDepartment";
 import EditPopup from "./EditPopup";
 import ModalConfirmDelete from "../../components/ui/modal/ModalConfirmDelete";
-import { deleteDepartmentApi, getListDepartmentApi, getListDeptManagerApi } from "../../api/adminApi";
 
-export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
+import { deleteDepartmentApi, getListDeptManagerApi } from "../../api/adminApi";
 import { getDepartments } from "../../services/admin";
 import { DepartmentResponse, PaginatedResponse } from "../../types/admin.types";
 
@@ -26,85 +24,57 @@ interface DepartmentTableOneProps {
 }
 
 export default function DepartmentTableOne({ addIsOpen, closeAddModal }: DepartmentTableOneProps) {
-  const [deleteIsOpen, setDeleteIsOpen] = useState<boolean>(false);
-  const [editIsOpen, setEditIsOpen] = useState<boolean>(false);
+  const [deleteIsOpen, setDeleteIsOpen] = useState(false);
+  const [editIsOpen, setEditIsOpen] = useState(false);
   const [departments, setDepartments] = useState<DepartmentResponse[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [departmentChosen, setDepartmentChosen] = useState<any>(null);
-  const [listDeptManager, setListDeptManager] = useState([]);
-  const [error, setError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [departmentChosen, setDepartmentChosen] = useState<DepartmentResponse | null>(null);
+  const [listDeptManager, setListDeptManager] = useState<{ value: number; label: string }[]>([]);
+  const [error, setError] = useState("");
 
   const handleDelete = async () => {
-    // Handle delete logic here
-    console.log("Deleting item...");
-    const data = {
-      id: departmentChosen?.id,
-      isActive: false,
-
+    if (!departmentChosen) return;
+    const data = { id: departmentChosen.id, isActive: false };
+    try {
+      await deleteDepartmentApi(data);
+      fetchDepartments();
+    } catch (error) {
+      console.error("Error deleting department:", error);
+    } finally {
+      closeDeleteModal();
     }
-
-    const res = await deleteDepartmentApi(data);
-    console.log("delete", res);
-    fetchDepartments();
-    closeDeleteModal();
   };
 
-  const openDeleteModal = () => {
-    setDeleteIsOpen(true);
-  };
+  const openDeleteModal = () => setDeleteIsOpen(true);
+  const closeDeleteModal = () => setDeleteIsOpen(false);
 
-  const closeDeleteModal = () => {
-    setDeleteIsOpen(false);
-  };
-
-  const handleEdit = async () => {
-    // Handle edit logic here
-    console.log("Editing item...");
-    setEditIsOpen(false);
-  };
-
-  const openEditModal = () => {
-    setEditIsOpen(true);
-  };
-
-  const closeEditModal = () => {
-    setEditIsOpen(false);
-  };
+  const handleEdit = () => setEditIsOpen(false);
+  const openEditModal = () => setEditIsOpen(true);
+  const closeEditModal = () => setEditIsOpen(false);
 
   const fetchDepartments = async () => {
     try {
-      const response = await getListDepartmentApi();
-      setDepartments(response.data);
+      setIsLoading(true);
+      setError("");
+      const data = await getDepartments();
+      const departmentsList = Array.isArray(data)
+        ? data
+        : (data as PaginatedResponse<DepartmentResponse>).data || [];
+      setDepartments(departmentsList);
+    } catch (err) {
+      console.error("Error fetching departments:", err);
+      setError("Không thể tải danh sách phòng ban");
+    } finally {
       setIsLoading(false);
-    } catch (error) {
-      console.error("Error fetching departments:", error);
     }
   };
-  useEffect(() => {
 
-    const fetchDepartments = async () => {
-      try {
-        setIsLoading(true);
-        setError("");
-        const data = await getDepartments();
-        // Handle both array and paginated response
-        const departmentsList = Array.isArray(data) 
-          ? data 
-          : (data as PaginatedResponse<DepartmentResponse>).data || [];
-        setDepartments(departmentsList);
-      } catch (err) {
-        console.error("Error fetching departments:", err);
-        const errorMessage = err instanceof Error ? err.message : "Không thể tải danh sách phòng ban";
-        setError(errorMessage);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  useEffect(() => {
     fetchDepartments();
   }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchManagers = async () => {
       const res = await getListDeptManagerApi();
       const formatData = res.data.map((manager: any) => ({
         value: manager.id,
@@ -112,87 +82,66 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: Departm
       }));
       setListDeptManager(formatData);
     };
-    fetchData();
+    fetchManagers();
   }, []);
 
   return (
     <div className="bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-xl overflow-hidden">
       <div className="max-w-full overflow-x-auto">
         <Table>
-          {/* Table Header */}
           <TableHeader className="border-gray-100 dark:border-white/[0.05] border-b">
             <TableRow>
-              <TableCell
-                isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400 text-start"
-              >
+              <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-theme-xs text-start">
                 Tên phòng ban
               </TableCell>
-              <TableCell
-                isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400 text-start"
-              >
+              <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-theme-xs text-start">
                 Mã số phòng ban
               </TableCell>
-              <TableCell
-                isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400 text-start"
-              >
+              <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-theme-xs text-start">
                 Trưởng phòng
               </TableCell>
-
-              <TableCell
-                isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400 text-start"
-              >
+              <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-theme-xs text-start">
                 Hành động
               </TableCell>
             </TableRow>
           </TableHeader>
 
-          {/* Table Body */}
           <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
             {departments.map((item) => (
               <TableRow key={item.id}>
-                <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
+                <TableCell className="px-4 py-3 text-gray-500 text-theme-sm text-start">
                   {item.name}
                 </TableCell>
-                <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
-                  {item.code}
+                <TableCell className="px-4 py-3 text-gray-500 text-theme-sm text-start">
                   {item.code || item.id}
                 </TableCell>
-                <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
+                <TableCell className="px-4 py-3 text-gray-500 text-theme-sm text-start">
                   {item.manager?.userName || "Chưa có"}
                 </TableCell>
-
-                <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                <TableCell className="px-4 py-3 text-gray-500 text-theme-sm">
                   <div className="flex items-center gap-3 w-fit">
                     <button
-                      onClick={openEditModal}
-                      size={30}
-                      className="hover:bg-blue-50 p-1 rounded-full hover:text-[#6082B6]"
-                    />
-                    <MdDelete
                       onClick={() => {
-                        openDeleteModal();
                         setDepartmentChosen(item);
+                        openEditModal();
                       }}
-                      size={30}
-                      className="hover:bg-red-100 p-1 rounded-full hover:text-red-500"
-                    />
                       className="cursor-pointer hover:bg-blue-50 p-1 rounded-full hover:text-[#6082B6] transition-colors"
                       type="button"
                       aria-label="Edit department"
                     >
-                      <FiEdit size={30} />
+                      <FiEdit size={24} />
                     </button>
+
                     <button
-                      onClick={openDeleteModal}
+                      onClick={() => {
+                        setDepartmentChosen(item);
+                        openDeleteModal();
+                      }}
                       className="cursor-pointer hover:bg-red-100 p-1 rounded-full hover:text-red-500 transition-colors"
                       type="button"
                       aria-label="Delete department"
                     >
-                      <MdDelete size={30} />
+                      <MdDelete size={24} />
                     </button>
                   </div>
                 </TableCell>
@@ -200,20 +149,17 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: Departm
             ))}
           </TableBody>
         </Table>
+
         {isLoading && (
           <div className="flex justify-center items-center bg-white h-32">
             <div className="border-4 border-blue-500 border-t-transparent rounded-full w-16 h-16 animate-spin" />
           </div>
         )}
-        {error && !isLoading && (
-          <div className="p-4 text-center text-red-500 text-sm">
-            {error}
-          </div>
-        )}
+
+        {error && !isLoading && <div className="p-4 text-center text-red-500 text-sm">{error}</div>}
+
         {!isLoading && !error && departments.length === 0 && (
-          <div className="p-4 text-center text-gray-500 text-sm">
-            Không có dữ liệu
-          </div>
+          <div className="p-4 text-center text-gray-500 text-sm">Không có dữ liệu</div>
         )}
       </div>
 
