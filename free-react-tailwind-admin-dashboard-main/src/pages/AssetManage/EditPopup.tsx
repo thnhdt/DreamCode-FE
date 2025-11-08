@@ -23,6 +23,7 @@ export default function EditPopup({
   );
 
   const [isCheckedEviction, setIsCheckedEviction] = useState(false);
+  const [isCheckedLiquidation, setIsCheckedLiquidation] = useState(false);
 
   const handleSelectChange = (value: string) => {
     console.log("Selected value:", value);
@@ -91,8 +92,8 @@ export default function EditPopup({
             <>
               <div>
                 <Checkbox
-                  checked={isCheckedEviction}
-                  onChange={setIsCheckedEviction}
+                  checked={isCheckedLiquidation}
+                  onChange={setIsCheckedLiquidation}
                   label="Xác nhận thanh lý tài sản"
                 />
               </div>

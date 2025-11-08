@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { MdDelete } from "react-icons/md";
 import { FiEdit } from "react-icons/fi";
@@ -14,70 +14,15 @@ import {
 import ModalAddDepartment from "./ModalAddDepartment";
 import EditPopup from "./EditPopup";
 import ModalConfirmDelete from "../../components/ui/modal/ModalConfirmDelete";
+import { getListDepartmentApi } from "../../api/adminApi";
 
-interface Order {
-  id: number;
-  typeName: string;
-  typeCode: string;
-}
 
-// Define the table data using the interface
-const typeList: Order[] = [
-  {
-    id: 1,
-    typeName: "Laptop / Máy tính xách tay",
-    typeCode: "LAPTOP",
-  },
-  {
-    id: 2,
-    typeName: "Máy tính để bàn",
-    typeCode: "DESKTOP",
-  },
-  {
-    id: 3,
-    typeName: "Màn hình / Monitor",
-    typeCode: "MONITOR",
-  },
-  {
-    id: 4,
-    typeName: "Máy in",
-    typeCode: "PRINTER",
-  },
-  {
-    id: 5,
-    typeName: "Thiết bị mạng (Router / Switch)",
-    typeCode: "NETWORK",
-  },
-  {
-    id: 6,
-    typeName: "Điện thoại bàn / Tổng đài VoIP",
-    typeCode: "PHONE",
-  },
-  {
-    id: 7,
-    typeName: "Bàn làm việc",
-    typeCode: "DESK",
-  },
-  {
-    id: 8,
-    typeName: "Ghế văn phòng",
-    typeCode: "CHAIR",
-  },
-  {
-    id: 9,
-    typeName: "Tủ / Kệ hồ sơ",
-    typeCode: "STORAGE",
-  },
-  {
-    id: 10,
-    typeName: "Xe công tác / Phương tiện di chuyển",
-    typeCode: "VEHICLE",
-  },
-];
 
 export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
   const [deleteIsOpen, setDeleteIsOpen] = useState<boolean>(false);
   const [editIsOpen, setEditIsOpen] = useState<boolean>(false);
+  const [departments, setDepartments] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const handleDelete = () => {
     // Handle delete logic here
@@ -106,6 +51,20 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
   const closeEditModal = () => {
     setEditIsOpen(false);
   };
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const response = await getListDepartmentApi();
+        setDepartments(response.data);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching departments:", error);
+
+      }
+    };
+    fetchDepartments();
+  }, []);
 
   return (
     <div className="bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-xl overflow-hidden">
@@ -144,16 +103,16 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
 
           {/* Table Body */}
           <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-            {typeList.map((order) => (
-              <TableRow key={order.id}>
+            {departments.map((item) => (
+              <TableRow key={item.id}>
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
-                  {order.typeName}
+                  {item.name}
                 </TableCell>
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
-                  {order.typeCode}
+                  {item.id}
                 </TableCell>
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
-                  {order.typeCode}
+                  {item.manager.userName}
                 </TableCell>
 
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
@@ -173,7 +132,14 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
               </TableRow>
             ))}
           </TableBody>
+
         </Table>
+        {isLoading && (
+          <div className="flex justify-center items-center bg-white h-32">
+            <div className="border-4 border-blue-500 border-t-transparent rounded-full w-16 h-16 animate-spin" />
+          </div>
+        )}
+
       </div>
 
       <ModalAddDepartment addIsOpen={addIsOpen} closeAddModal={closeAddModal} />
