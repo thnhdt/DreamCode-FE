@@ -1,72 +1,55 @@
 import { useEffect, useState } from "react";
-import { getListDeptManagerApi, postListDepartmentApi } from "../../api/adminApi";
+import { getListDeptManagerApi, postDepartmentApi } from "../../api/adminApi";
 import Input from "../../components/form/input/InputField";
 import Label from "../../components/form/Label";
 import Select from "../../components/form/Select";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 
-
-
-export default function ModalAddDepartment({ addIsOpen, closeAddModal }: any) {
-  const [listDeptManager, setListDeptManager] = useState([]);
-  const [formData, setFormData] = useState({})
+export default function ModalAddDepartment({ addIsOpen, closeAddModal, listDeptManager, setListDeptManager }: any) {
+  const [formData, setFormData] = useState({});
 
   const handleAdd = async () => {
     // Handle save logic here
     console.log("Saving new department...");
-
-
     console.log("formdata", formData);
-
-
-    const res = await postListDepartmentApi(formData);
+    const res = await postDepartmentApi(formData);
     console.log("create department", res);
-
 
     closeAddModal();
   };
 
   const handleSelectNameChange = () => {
-    const departmentName = document.getElementById("deparmentName") as HTMLInputElement;
+    const departmentName = document.getElementById(
+      "deparmentName"
+    ) as HTMLInputElement;
     console.log("name", departmentName.value);
 
     setFormData({
       ...formData,
       name: departmentName.value,
     });
-  }
+  };
 
   const handleSelectDepparCodeChange = () => {
-    const departmentCode = document.getElementById("departmentCode") as HTMLInputElement;
+    const departmentCode = document.getElementById(
+      "departmentCode"
+    ) as HTMLInputElement;
     setFormData({
       ...formData,
       code: departmentCode.value,
     });
-  }
+  };
 
   const handleSelectDeptManagerChange = (e: any) => {
-
     setFormData({
       ...formData,
       managerId: e,
     });
-  }
+  };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const res = await getListDeptManagerApi();
-      const formatData = res.data.map((manager: any) => ({
-        value: manager.id,
-        label: manager.userName,
-      }));
-      setListDeptManager(formatData);
 
-    };
-    fetchData();
-  }, [])
 
-  console.log(listDeptManager);
 
 
   return (
@@ -87,11 +70,19 @@ export default function ModalAddDepartment({ addIsOpen, closeAddModal }: any) {
               <div className="gap-x-6 gap-y-5 grid grid-cols-1 lg:grid-cols-2">
                 <div>
                   <Label>Tên phòng ban</Label>
-                  <Input id="deparmentName" type="text" onChange={handleSelectNameChange} />
+                  <Input
+                    id="deparmentName"
+                    type="text"
+                    onChange={handleSelectNameChange}
+                  />
                 </div>
                 <div>
                   <Label>Mã số phòng ban</Label>
-                  <Input id="departmentCode" type="text" onChange={handleSelectDepparCodeChange} />
+                  <Input
+                    id="departmentCode"
+                    type="text"
+                    onChange={handleSelectDepparCodeChange}
+                  />
                 </div>
                 <div>
                   <Label>Trưởng phòng</Label>
@@ -106,7 +97,11 @@ export default function ModalAddDepartment({ addIsOpen, closeAddModal }: any) {
             </div>
           </div>
           <div className="flex lg:justify-end items-center gap-3 mt-6 px-2">
-            <Button size="sm" variant="outline" onClick={closeAddModal}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={closeAddModal}
+            >
               Đóng
             </Button>
             <Button size="sm" onClick={handleAdd}>

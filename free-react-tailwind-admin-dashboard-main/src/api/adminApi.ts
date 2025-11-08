@@ -4,11 +4,13 @@ const API_BACKEND_URL = "http://localhost:8080/api/admin";
 const API_BACKEND_URL2 = "http://localhost:8080/api";
 
 export async function getListDepartmentApi() {
-    const res = await axiosInstance.get(`${API_BACKEND_URL}/departments`);
+    const res = await axiosInstance.get(
+        `${API_BACKEND_URL}/departments/active`
+    );
     return res;
 }
 
-export async function postListDepartmentApi(data: any) {
+export async function postDepartmentApi(data: any) {
     const res = await axiosInstance.post(
         `${API_BACKEND_URL}/departments`,
         data
@@ -16,8 +18,37 @@ export async function postListDepartmentApi(data: any) {
     return res;
 }
 
+export async function deleteDepartmentApi(data: any) {
+    const res = await axiosInstance.put(
+        `${API_BACKEND_URL}/departments/${data.id}`,
+        data
+    );
+    return res;
+}
+
+export async function updateDepartmentApi(data: any) {
+    const res = await axiosInstance.put(
+        `${API_BACKEND_URL}/departments/${data.id}`,
+        data
+    );
+    return res;
+}
+
 export async function getListSupplierApi() {
-    const res = await axiosInstance.get(`${API_BACKEND_URL}/suppliers`);
+    const res = await axiosInstance.get(`${API_BACKEND_URL}/suppliers/active`);
+    return res;
+}
+
+export async function createSupplierApi(data: any) {
+    const res = await axiosInstance.post(`${API_BACKEND_URL}/suppliers`, data);
+    return res;
+}
+
+export async function deleteSupplierApi(data: any) {
+    const res = await axiosInstance.put(
+        `${API_BACKEND_URL}/suppliers/${data.id}`,
+        data
+    );
     return res;
 }
 

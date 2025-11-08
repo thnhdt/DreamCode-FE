@@ -14,7 +14,7 @@ import {
 import ModalAddSupplier from "./ModalAddSupplier";
 import EditPopup from "./EditPopup";
 import ModalConfirmDelete from "../../components/ui/modal/ModalConfirmDelete";
-import { getListSupplierApi } from "../../api/adminApi";
+import { deleteSupplierApi, getListSupplierApi } from "../../api/adminApi";
 
 
 
@@ -22,11 +22,20 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
   const [deleteIsOpen, setDeleteIsOpen] = useState<boolean>(false);
   const [editIsOpen, setEditIsOpen] = useState<boolean>(false);
   const [suppliers, setSuppliers] = useState<any[]>([]);
+  const [supplierChosen, setSupplierChosen] = useState<any>(null);
 
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     // Handle delete logic here
     console.log("Deleting item...");
+    const data = {
+      id: supplierChosen?.id,
+      isActive: false,
+    }
+
+    const res = await deleteSupplierApi(data);
+    console.log("delete", res);
+    fetchListSupplier();
     closeDeleteModal();
   };
 
@@ -52,16 +61,18 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
     setEditIsOpen(false);
   };
 
+  const fetchListSupplier = async () => {
+    try {
+      const response = await getListSupplierApi();
+      console.log("List Supplier:", response.data);
+      setSuppliers(response.data);
+    } catch (error) {
+      console.error("Error fetching suppliers:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchListSupplier = async () => {
-      try {
-        const response = await getListSupplierApi();
-        console.log("List Supplier:", response.data);
-        setSuppliers(response.data);
-      } catch (error) {
-        console.error("Error fetching suppliers:", error);
-      }
-    };
+
     fetchListSupplier();
   }, [])
 
@@ -129,7 +140,10 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
                       className="hover:bg-blue-50 p-1 rounded-full hover:text-[#6082B6]"
                     />
                     <MdDelete
-                      onClick={openDeleteModal}
+                      onClick={() => {
+                        openDeleteModal();
+                        setSupplierChosen(item);
+                      }}
                       size={30}
                       className="hover:bg-red-100 p-1 rounded-full hover:text-red-500"
                     />
