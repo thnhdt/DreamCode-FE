@@ -1,24 +1,57 @@
+import { useEffect, useState } from "react";
+import { getListDeptManagerApi, postDepartmentApi } from "../../api/adminApi";
 import Input from "../../components/form/input/InputField";
 import Label from "../../components/form/Label";
 import Select from "../../components/form/Select";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 
-const options = [
-  { value: "option1", label: "Nguyễn Văn A" },
-  { value: "option2", label: "Trần Thị B" },
-  { value: "option3", label: "Lê Văn C" },
-];
+export default function ModalAddDepartment({ addIsOpen, closeAddModal, listDeptManager, setListDeptManager }: any) {
+  const [formData, setFormData] = useState({});
 
-export default function ModalAddDepartment({ addIsOpen, closeAddModal }: any) {
-  const handleAdd = () => {
+  const handleAdd = async () => {
     // Handle save logic here
     console.log("Saving new department...");
+    console.log("formdata", formData);
+    const res = await postDepartmentApi(formData);
+    console.log("create department", res);
+
     closeAddModal();
   };
-  const handleSelectChange = (value: string) => {
-    console.log("Selected value:", value);
+
+  const handleSelectNameChange = () => {
+    const departmentName = document.getElementById(
+      "deparmentName"
+    ) as HTMLInputElement;
+    console.log("name", departmentName.value);
+
+    setFormData({
+      ...formData,
+      name: departmentName.value,
+    });
   };
+
+  const handleSelectDepparCodeChange = () => {
+    const departmentCode = document.getElementById(
+      "departmentCode"
+    ) as HTMLInputElement;
+    setFormData({
+      ...formData,
+      code: departmentCode.value,
+    });
+  };
+
+  const handleSelectDeptManagerChange = (e: any) => {
+    setFormData({
+      ...formData,
+      managerId: e,
+    });
+  };
+
+
+
+
+
   return (
     <Modal
       isOpen={addIsOpen}
@@ -37,18 +70,26 @@ export default function ModalAddDepartment({ addIsOpen, closeAddModal }: any) {
               <div className="gap-x-6 gap-y-5 grid grid-cols-1 lg:grid-cols-2">
                 <div>
                   <Label>Tên phòng ban</Label>
-                  <Input type="text" />
+                  <Input
+                    id="deparmentName"
+                    type="text"
+                    onChange={handleSelectNameChange}
+                  />
                 </div>
                 <div>
                   <Label>Mã số phòng ban</Label>
-                  <Input type="text" />
+                  <Input
+                    id="departmentCode"
+                    type="text"
+                    onChange={handleSelectDepparCodeChange}
+                  />
                 </div>
                 <div>
                   <Label>Trưởng phòng</Label>
                   <Select
-                    options={options}
+                    options={listDeptManager}
                     placeholder="------------"
-                    onChange={handleSelectChange}
+                    onChange={handleSelectDeptManagerChange}
                     className="dark:bg-dark-900"
                   />
                 </div>
@@ -56,7 +97,11 @@ export default function ModalAddDepartment({ addIsOpen, closeAddModal }: any) {
             </div>
           </div>
           <div className="flex lg:justify-end items-center gap-3 mt-6 px-2">
-            <Button size="sm" variant="outline" onClick={closeAddModal}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={closeAddModal}
+            >
               Đóng
             </Button>
             <Button size="sm" onClick={handleAdd}>

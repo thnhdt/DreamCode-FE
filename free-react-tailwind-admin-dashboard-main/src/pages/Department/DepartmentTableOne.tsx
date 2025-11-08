@@ -14,19 +14,28 @@ import {
 import ModalAddDepartment from "./ModalAddDepartment";
 import EditPopup from "./EditPopup";
 import ModalConfirmDelete from "../../components/ui/modal/ModalConfirmDelete";
-import { getListDepartmentApi } from "../../api/adminApi";
-
-
+import { deleteDepartmentApi, getListDepartmentApi, getListDeptManagerApi } from "../../api/adminApi";
 
 export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
   const [deleteIsOpen, setDeleteIsOpen] = useState<boolean>(false);
   const [editIsOpen, setEditIsOpen] = useState<boolean>(false);
   const [departments, setDepartments] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [departmentChosen, setDepartmentChosen] = useState<any>(null);
+  const [listDeptManager, setListDeptManager] = useState([]);
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     // Handle delete logic here
     console.log("Deleting item...");
+    const data = {
+      id: departmentChosen?.id,
+      isActive: false,
+
+    }
+
+    const res = await deleteDepartmentApi(data);
+    console.log("delete", res);
+    fetchDepartments();
     closeDeleteModal();
   };
 
@@ -38,7 +47,7 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
     setDeleteIsOpen(false);
   };
 
-  const handleEdit = () => {
+  const handleEdit = async () => {
     // Handle edit logic here
     console.log("Editing item...");
     setEditIsOpen(false);
@@ -52,18 +61,30 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
     setEditIsOpen(false);
   };
 
+  const fetchDepartments = async () => {
+    try {
+      const response = await getListDepartmentApi();
+      setDepartments(response.data);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error fetching departments:", error);
+    }
+  };
   useEffect(() => {
-    const fetchDepartments = async () => {
-      try {
-        const response = await getListDepartmentApi();
-        setDepartments(response.data);
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error fetching departments:", error);
 
-      }
-    };
     fetchDepartments();
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await getListDeptManagerApi();
+      const formatData = res.data.map((manager: any) => ({
+        value: manager.id,
+        label: manager.userName,
+      }));
+      setListDeptManager(formatData);
+    };
+    fetchData();
   }, []);
 
   return (
@@ -109,7 +130,7 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
                   {item.name}
                 </TableCell>
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
-                  {item.id}
+                  {item.code}
                 </TableCell>
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
                   {item.manager.userName}
@@ -123,7 +144,10 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
                       className="hover:bg-blue-50 p-1 rounded-full hover:text-[#6082B6]"
                     />
                     <MdDelete
-                      onClick={openDeleteModal}
+                      onClick={() => {
+                        openDeleteModal();
+                        setDepartmentChosen(item);
+                      }}
                       size={30}
                       className="hover:bg-red-100 p-1 rounded-full hover:text-red-500"
                     />
@@ -132,22 +156,27 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
               </TableRow>
             ))}
           </TableBody>
-
         </Table>
         {isLoading && (
           <div className="flex justify-center items-center bg-white h-32">
             <div className="border-4 border-blue-500 border-t-transparent rounded-full w-16 h-16 animate-spin" />
           </div>
         )}
-
       </div>
 
-      <ModalAddDepartment addIsOpen={addIsOpen} closeAddModal={closeAddModal} />
+      <ModalAddDepartment
+        addIsOpen={addIsOpen}
+        closeAddModal={closeAddModal}
+        listDeptManager={listDeptManager}
+        setListDeptManager={setListDeptManager}
+      />
 
       <EditPopup
         editIsOpen={editIsOpen}
         closeEditModal={closeEditModal}
         handleEdit={handleEdit}
+        departmentChosen={departmentChosen}
+        listDeptManager={listDeptManager}
       />
 
       <ModalConfirmDelete

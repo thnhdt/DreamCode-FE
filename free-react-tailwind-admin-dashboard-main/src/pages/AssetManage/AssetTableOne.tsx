@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as XLSX from "xlsx";
 
 import { MdDelete } from "react-icons/md";
@@ -20,124 +20,28 @@ import EditPopup from "./EditPopup";
 import ModalConfirmDelete from "../../components/ui/modal/ModalConfirmDelete";
 import FilterPopup from "./FilterPopup.tsx";
 import HistoryModal from "./HistoryModal.tsx";
+import { getListAssetApi } from "../../api/adminApi.ts";
 
-export interface Asset {
-  id: number;
-  assetName: string;
-  assetCode: string;
-  type: string;
-  status: "Đang sử dụng" | "Sẵn sàng" | "Hỏng" | "Thanh lý";
-  user: string;
-  department: string;
-}
 
-export const assetList: Asset[] = [
-  {
-    id: 1,
-    assetName: "Laptop Dell XPS 15",
-    assetCode: "AS-001",
-    type: "Thiết bị CNTT",
-    status: "Đang sử dụng",
-    user: "Nguyễn Văn A",
-    department: "Phòng IT",
-  },
-  {
-    id: 2,
-    assetName: "Máy in HP LaserJet Pro",
-    assetCode: "AS-002",
-    type: "Thiết bị văn phòng",
-    status: "Sẵn sàng",
-    user: "-",
-    department: "Kho",
-  },
-  {
-    id: 3,
-    assetName: "Màn hình Samsung 27 inch",
-    assetCode: "AS-003",
-    type: "Thiết bị CNTT",
-    status: "Đang sử dụng",
-    user: "Lê Thị B",
-    department: "Phòng Marketing",
-  },
-  {
-    id: 4,
-    assetName: "Bàn làm việc gỗ",
-    assetCode: "AS-004",
-    type: "Nội thất",
-    status: "Sẵn sàng",
-    user: "-",
-    department: "Kho",
-  },
-  {
-    id: 5,
-    assetName: "Ghế xoay văn phòng",
-    assetCode: "AS-005",
-    type: "Nội thất",
-    status: "Đang sử dụng",
-    user: "Trần Văn C",
-    department: "Phòng Kinh Doanh",
-  },
-  {
-    id: 6,
-    assetName: "MacBook Pro 14 M1",
-    assetCode: "AS-006",
-    type: "Thiết bị CNTT",
-    status: "Đang sử dụng",
-    user: "Phạm Văn D",
-    department: "Phòng IT",
-  },
-  {
-    id: 7,
-    assetName: "Điện thoại IP Cisco",
-    assetCode: "AS-007",
-    type: "Thiết bị mạng",
-    status: "Hỏng",
-    user: "-",
-    department: "Kho",
-  },
-  {
-    id: 8,
-    assetName: "Router WiFi TP-Link",
-    assetCode: "AS-008",
-    type: "Thiết bị mạng",
-    status: "Sẵn sàng",
-    user: "-",
-    department: "Kho",
-  },
-  {
-    id: 9,
-    assetName: "Máy chiếu Sony VPL",
-    assetCode: "AS-009",
-    type: "Thiết bị văn phòng",
-    status: "Đang sử dụng",
-    user: "Đặng Thị E",
-    department: "Phòng Đào Tạo",
-  },
-  {
-    id: 10,
-    assetName: "Ổ cứng SSD 1TB Samsung",
-    assetCode: "AS-010",
-    type: "Thiết bị CNTT",
-    status: "Thanh lý",
-    user: "-",
-    department: "Kho",
-  },
-];
+
+
 
 export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
   const [deleteIsOpen, setDeleteIsOpen] = useState<boolean>(false);
   const [editIsOpen, setEditIsOpen] = useState<boolean>(false);
   const [filterIsOpen, setFilterIsOpen] = useState<boolean>(false);
   const [historyIsOpen, setHistoryIsOpen] = useState<boolean>(false);
-  const [filteredAssets, setFilteredAssets] = useState<Asset[]>(assetList);
+  const [assets, setAssets] = useState<any>([]);
+  const [filteredAssets, setFilteredAssets] = useState<any>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value.toLowerCase();
 
-    const filteredAssets = assetList.filter(
-      (asset) =>
+    const filteredAssets = assets.filter(
+      (asset: any) =>
         asset.assetName.toLowerCase().includes(query) ||
         asset.assetCode.toLowerCase().includes(query) ||
         asset.user.toLowerCase().includes(query)
@@ -148,7 +52,7 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
 
   const handleDownloadExcel = () => {
     // 1) Tạo worksheet từ JSON
-    const ws = XLSX.utils.json_to_sheet(assetList);
+    const ws = XLSX.utils.json_to_sheet(assets);
 
     // 2) Tạo workbook và gắn sheet
     const wb = XLSX.utils.book_new();
@@ -188,8 +92,8 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
   const handleFilter = (filteredChoices: any) => {
     console.log("Filtered choices:", filteredChoices);
 
-    const filteredAssets = assetList.filter(
-      (asset) =>
+    const filteredAssets = assets.filter(
+      (asset: any) =>
         asset.status.includes(filteredChoices.trangThaiTaiSan) &&
         asset.type.includes(filteredChoices.loaiTaiSan || "") &&
         asset.department.includes(filteredChoices.phongBan || "")
@@ -215,6 +119,22 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
   const closeHistoryModal = () => {
     setHistoryIsOpen(false);
   };
+
+  useEffect(() => {
+    const fetchListAsset = async () => {
+      try {
+        // Call the API to get the list of assets
+        const response = await getListAssetApi();
+        setIsLoading(false);
+
+        setAssets(response.data.content);
+        setFilteredAssets(response.data.content);
+      } catch (error) {
+        console.error("Error fetching asset list:", error);
+      }
+    };
+    fetchListAsset();
+  }, [])
 
   return (
     <div className="bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-xl overflow-hidden">
@@ -279,7 +199,7 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
         <button
           className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-white/[0.03] shadow-theme-xs px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg font-medium text-gray-700 text-theme-sm hover:text-gray-800 dark:hover:text-gray-200 dark:text-gray-400"
           onClick={() => {
-            setFilteredAssets(assetList);
+            setFilteredAssets(assets);
             if (inputRef.current) {
               inputRef.current.value = "";
             }
@@ -351,16 +271,16 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
 
           {/* Table Body */}
           <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-            {filteredAssets.map((asset) => (
+            {filteredAssets.map((asset: any) => (
               <TableRow key={asset.id}>
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
-                  {asset.assetName}
+                  {asset.name}
                 </TableCell>
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
-                  {asset.assetCode}
+                  {asset.id}
                 </TableCell>
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
-                  {asset.type}
+                  {asset.category?.name}
                 </TableCell>
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
                   {asset.status}
@@ -369,7 +289,7 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
                   {asset.user}
                 </TableCell>
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
-                  {asset.department}
+                  {asset.department?.name}
                 </TableCell>
 
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
@@ -395,6 +315,11 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
               </TableRow>
             ))}
           </TableBody>
+          {isLoading && (
+            <div className="flex justify-center items-center bg-white h-32">
+              <div className="border-4 border-blue-500 border-t-transparent rounded-full w-16 h-16 animate-spin" />
+            </div>
+          )}
         </Table>
       </div>
 
