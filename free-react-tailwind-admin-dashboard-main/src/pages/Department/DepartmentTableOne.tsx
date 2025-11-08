@@ -17,12 +17,22 @@ import ModalConfirmDelete from "../../components/ui/modal/ModalConfirmDelete";
 import { deleteDepartmentApi, getListDepartmentApi, getListDeptManagerApi } from "../../api/adminApi";
 
 export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
+import { getDepartments } from "../../services/admin";
+import { DepartmentResponse, PaginatedResponse } from "../../types/admin.types";
+
+interface DepartmentTableOneProps {
+  addIsOpen: boolean;
+  closeAddModal: () => void;
+}
+
+export default function DepartmentTableOne({ addIsOpen, closeAddModal }: DepartmentTableOneProps) {
   const [deleteIsOpen, setDeleteIsOpen] = useState<boolean>(false);
   const [editIsOpen, setEditIsOpen] = useState<boolean>(false);
-  const [departments, setDepartments] = useState<any[]>([]);
+  const [departments, setDepartments] = useState<DepartmentResponse[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [departmentChosen, setDepartmentChosen] = useState<any>(null);
   const [listDeptManager, setListDeptManager] = useState([]);
+  const [error, setError] = useState<string>("");
 
   const handleDelete = async () => {
     // Handle delete logic here
@@ -72,6 +82,24 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
   };
   useEffect(() => {
 
+    const fetchDepartments = async () => {
+      try {
+        setIsLoading(true);
+        setError("");
+        const data = await getDepartments();
+        // Handle both array and paginated response
+        const departmentsList = Array.isArray(data) 
+          ? data 
+          : (data as PaginatedResponse<DepartmentResponse>).data || [];
+        setDepartments(departmentsList);
+      } catch (err) {
+        console.error("Error fetching departments:", err);
+        const errorMessage = err instanceof Error ? err.message : "Không thể tải danh sách phòng ban";
+        setError(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    };
     fetchDepartments();
   }, []);
 
@@ -131,14 +159,15 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
                 </TableCell>
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
                   {item.code}
+                  {item.code || item.id}
                 </TableCell>
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
-                  {item.manager.userName}
+                  {item.manager?.userName || "Chưa có"}
                 </TableCell>
 
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  <div className="flex items-center gap-3 w-fit cursor-pointer">
-                    <FiEdit
+                  <div className="flex items-center gap-3 w-fit">
+                    <button
                       onClick={openEditModal}
                       size={30}
                       className="hover:bg-blue-50 p-1 rounded-full hover:text-[#6082B6]"
@@ -151,6 +180,20 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
                       size={30}
                       className="hover:bg-red-100 p-1 rounded-full hover:text-red-500"
                     />
+                      className="cursor-pointer hover:bg-blue-50 p-1 rounded-full hover:text-[#6082B6] transition-colors"
+                      type="button"
+                      aria-label="Edit department"
+                    >
+                      <FiEdit size={30} />
+                    </button>
+                    <button
+                      onClick={openDeleteModal}
+                      className="cursor-pointer hover:bg-red-100 p-1 rounded-full hover:text-red-500 transition-colors"
+                      type="button"
+                      aria-label="Delete department"
+                    >
+                      <MdDelete size={30} />
+                    </button>
                   </div>
                 </TableCell>
               </TableRow>
@@ -160,6 +203,16 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
         {isLoading && (
           <div className="flex justify-center items-center bg-white h-32">
             <div className="border-4 border-blue-500 border-t-transparent rounded-full w-16 h-16 animate-spin" />
+          </div>
+        )}
+        {error && !isLoading && (
+          <div className="p-4 text-center text-red-500 text-sm">
+            {error}
+          </div>
+        )}
+        {!isLoading && !error && departments.length === 0 && (
+          <div className="p-4 text-center text-gray-500 text-sm">
+            Không có dữ liệu
           </div>
         )}
       </div>

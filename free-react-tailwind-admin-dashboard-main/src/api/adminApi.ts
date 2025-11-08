@@ -1,8 +1,26 @@
-import axiosInstance from "../utils/axiosInstance";
+// Re-export all admin services for backward compatibility
+// Recommended: Import directly from services/admin instead
+export {
+  // User services
+  createUser,
+  getUsers,
+  getActiveUsers,
+  getUserById,
+  updateUser,
+  // Department Manager services
+  getDepartmentManagers,
+  getActiveDepartmentManagers,
+  // Department services
+  createDepartment,
+  getDepartments,
+  getActiveDepartments,
+  getDepartmentById,
+  updateDepartment,
+} from "../services/admin";
 
-const API_BACKEND_URL = "http://localhost:8080/api/admin";
-const API_BACKEND_URL2 = "http://localhost:8080/api";
-
+// Legacy function - kept for backward compatibility
+// Use getDepartments from services/admin/departmentService instead
+import { getDepartments } from "../services/admin";
 export async function getListDepartmentApi() {
     const res = await axiosInstance.get(
         `${API_BACKEND_URL}/departments/active`

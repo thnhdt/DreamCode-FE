@@ -1,14 +1,9 @@
 import { Navigate } from "react-router";
 
-export default function ProtectedRoute({
-  children,
-  roles,
-}: {
-  children: React.ReactNode;
-  roles?: string[];
-}) {
+export default function ProtectedRoute({ children, roles }: { children: React.ReactNode, roles?: string[] }) {
   const token = localStorage.getItem("token");
   const userStr = localStorage.getItem("user");
+  
   // Parse user if exists
   let user = null;
   try {
@@ -20,7 +15,6 @@ export default function ProtectedRoute({
     return <Navigate to="/signin" replace />;
   }
 
-  // ❌ Chưa đăng nhập
   if (!token || !user) {
     return <Navigate to="/signin" replace />;
   }
