@@ -14,8 +14,8 @@ export default function Category() {
     return (
         <>
             <PageMeta
-                title="React.js Profile Dashboard | TailAdmin - Next.js Admin Dashboard Template"
-                description="This is React.js Profile Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
+                title="React.js Profile Dashboard | Quản lý tài sản - Next.js Admin Dashboard Template"
+                description="This is React.js Profile Dashboard page for Quản lý tài sản - React.js Tailwind CSS Admin Dashboard Template"
             />
             <PageBreadcrumb pageTitle="Quản lý loại tài sản" />
 
