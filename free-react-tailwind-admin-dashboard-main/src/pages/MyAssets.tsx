@@ -10,39 +10,35 @@ import { useModal } from "../hooks/useModal";
 import Select from "../components/form/Select";
 import TextArea from "../components/form/input/TextArea";
 import Alert from "../components/ui/alert/Alert";
-
-interface Asset {
-  id: string;
-  name: string;
-  serial: string;
-  status: "in_use" | "maintenance" | "lost";
-}
+import { getMyAssets, reportAccident } from "../services/userService";
+import { AssetResponse } from "../types/asset.types";
+import { PaginatedResponse } from "../types/admin.types";
 
 export default function MyAssets() {
-  const [myAssets, setMyAssets] = useState<Asset[]>([]);
+  const [myAssets, setMyAssets] = useState<AssetResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
 
   const { isOpen, openModal, closeModal } = useModal(false);
-  const [selectedAssetId, setSelectedAssetId] = useState<string>("");
-  const [reason, setReason] = useState<string>("");
+  const [selectedAssetId, setSelectedAssetId] = useState<number | null>(null);
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
 
-  // Mock: seed some assets for the current user
+  // Fetch my assets from API
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       setError("");
       try {
-        await new Promise((r) => setTimeout(r, 300));
-        const mock: Asset[] = [
-          { id: "AS-001", name: "Laptop Dell XPS 13", serial: "SN-DX13-2023-001", status: "in_use" },
-          { id: "AS-002", name: "Chuột Logitech MX", serial: "SN-LGMX-2022-145", status: "in_use" },
-          { id: "AS-003", name: "Màn hình LG 27\"", serial: "SN-LG27-2021-332", status: "maintenance" },
-        ];
-        setMyAssets(mock);
-      } catch {
-        setError("Không thể tải dữ liệu tài sản");
+        const data = await getMyAssets();
+        // Handle paginated response
+        const assetsList = (data as PaginatedResponse<AssetResponse>).data || [];
+        setMyAssets(assetsList);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "Không thể tải dữ liệu tài sản";
+        setError(errorMessage);
+        console.error("Error fetching my assets:", err);
       } finally {
         setLoading(false);
       }
@@ -50,21 +46,50 @@ export default function MyAssets() {
     load();
   }, []);
 
-  const assetOptions = myAssets.map((a) => ({ value: a.id, label: a.name }));
+  const assetOptions = myAssets.map((a) => ({ value: a.id.toString(), label: a.name }));
 
-  const handleOpenReport = (assetId?: string) => {
+  const handleOpenReport = (assetId?: number) => {
     if (assetId) setSelectedAssetId(assetId);
     openModal();
   };
 
-  const handleSubmitReport = () => {
-    // mock create ticket
-    setTimeout(() => {
+  const handleSubmitReport = async () => {
+    if (!selectedAssetId || !title.trim() || !description.trim()) {
+      setError("Vui lòng điền đầy đủ thông tin");
+      return;
+    }
+
+    try {
+      await reportAccident({
+        assetId: selectedAssetId,
+        title: title.trim(),
+        description: description.trim(),
+      });
+      
       closeModal();
-      setReason("");
+      setTitle("");
+      setDescription("");
+      setSelectedAssetId(null);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 2500);
-    }, 250);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Không thể báo cáo sự cố";
+      setError(errorMessage);
+      console.error("Error reporting accident:", err);
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "ASSIGNED":
+        return { color: "success" as const, label: "Đang sử dụng" };
+      case "MAINTENANCE":
+        return { color: "warning" as const, label: "Bảo trì" };
+      case "LOST":
+        return { color: "error" as const, label: "Mất" };
+      default:
+        return { color: "success" as const, label: "Đang sử dụng" };
+    }
   };
 
   return (
@@ -109,7 +134,7 @@ export default function MyAssets() {
                         Tên tài sản
                       </TableCell>
                       <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                        Số serial
+                        Vị trí
                       </TableCell>
                       <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                         Trạng thái
@@ -128,12 +153,13 @@ export default function MyAssets() {
                             {asset.name}
                           </TableCell>
                           <TableCell className="px-5 py-4 text-gray-500 text-theme-sm dark:text-gray-400">
-                            {asset.serial}
+                            {asset.location || "N/A"}
                           </TableCell>
                           <TableCell className="px-5 py-4 text-start">
-                            <Badge size="sm" color={asset.status === "in_use" ? "success" : asset.status === "maintenance" ? "warning" : "error"}>
-                              {asset.status === "in_use" ? "Đang sử dụng" : asset.status === "maintenance" ? "Bảo trì" : "Mất"}
-                            </Badge>
+                            {(() => {
+                              const badge = getStatusBadge(asset.status);
+                              return <Badge size="sm" color={badge.color}>{badge.label}</Badge>;
+                            })()}
                           </TableCell>
                           <TableCell className="px-5 py-4">
                             <Button size="sm" variant="outline" onClick={() => handleOpenReport(asset.id)}>
@@ -166,24 +192,48 @@ export default function MyAssets() {
           </div>
           <form onSubmit={(e) => { e.preventDefault(); handleSubmitReport(); }} className="flex flex-col gap-5 px-1">
             <div>
+              <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                Chọn tài sản
+              </label>
               <Select
                 options={assetOptions}
                 placeholder="Chọn tài sản"
-                onChange={(val) => setSelectedAssetId(val)}
-                defaultValue={selectedAssetId}
+                onChange={(val) => setSelectedAssetId(val ? parseInt(val) : null)}
+                defaultValue={selectedAssetId?.toString()}
               />
             </div>
             <div>
-              <TextArea
-                rows={5}
-                placeholder="Mô tả lý do / sự cố gặp phải"
-                value={reason}
-                onChange={(val) => setReason(val)}
+              <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                Tiêu đề <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:border-gray-700"
+                placeholder="Nhập tiêu đề sự cố"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
               />
             </div>
+            <div>
+              <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                Mô tả <span className="text-red-500">*</span>
+              </label>
+              <TextArea
+                rows={5}
+                placeholder="Mô tả chi tiết sự cố gặp phải"
+                value={description}
+                onChange={(val) => setDescription(val)}
+              />
+            </div>
+            {error && (
+              <div className="p-3 text-sm text-red-500 bg-red-50 rounded-lg dark:bg-red-900/20">
+                {error}
+              </div>
+            )}
             <div className="flex items-center gap-3 lg:justify-end">
               <Button size="sm" variant="outline" onClick={closeModal} type="button">Đóng</Button>
-              <Button size="sm" type="submit" disabled={!selectedAssetId || !reason.trim()}>Gửi</Button>
+              <Button size="sm" type="submit" disabled={!selectedAssetId || !title.trim() || !description.trim()}>Gửi</Button>
             </div>
           </form>
         </div>

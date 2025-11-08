@@ -5,113 +5,35 @@ import ComponentCard from "../components/common/ComponentCard";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../components/ui/table";
 import Badge from "../components/ui/badge/Badge";
 import Button from "../components/ui/button/Button";
-
-interface Supplier {
-  id: string;
-  name: string;
-  contactPerson: string;
-  email: string;
-  phone: string;
-  address: string;
-  taxCode: string;
-  status: "active" | "inactive";
-  createdAt: string;
-}
-
-// Mock data
-const initialSuppliers: Supplier[] = [
-  {
-    id: "SUP001",
-    name: "Công ty TNHH Thiết bị Văn phòng ABC",
-    contactPerson: "Nguyễn Văn X",
-    email: "info@abc.vn",
-    phone: "0123456789",
-    address: "123 Đường ABC, Quận 1, TP. HCM",
-    taxCode: "1234567890",
-    status: "active",
-    createdAt: "2024-01-10",
-  },
-  {
-    id: "SUP002",
-    name: "Công ty Cổ phần Máy tính XYZ",
-    contactPerson: "Trần Thị Y",
-    email: "contact@xyz.com",
-    phone: "0987654321",
-    address: "456 Đường XYZ, Quận 3, TP. HCM",
-    taxCode: "0987654321",
-    status: "active",
-    createdAt: "2024-01-15",
-  },
-  {
-    id: "SUP003",
-    name: "Công ty TNHH Đồ gia dụng DEF",
-    contactPerson: "Lê Văn Z",
-    email: "sales@def.vn",
-    phone: "0111222333",
-    address: "789 Đường DEF, Quận 5, TP. HCM",
-    taxCode: "1122334455",
-    status: "inactive",
-    createdAt: "2023-12-20",
-  },
-  {
-    id: "SUP004",
-    name: "Công ty TNHH Thiết bị An ninh GHI",
-    contactPerson: "Phạm Thị W",
-    email: "info@ghi.com",
-    phone: "0147258369",
-    address: "321 Đường GHI, Quận 7, TP. HCM",
-    taxCode: "5566778899",
-    status: "active",
-    createdAt: "2024-02-01",
-  },
-  {
-    id: "SUP005",
-    name: "Công ty Cổ phần Nội thất JKL",
-    contactPerson: "Hoàng Văn V",
-    email: "contact@jkl.vn",
-    phone: "0198765432",
-    address: "654 Đường JKL, Quận 2, TP. HCM",
-    taxCode: "9988776655",
-    status: "active",
-    createdAt: "2024-01-25",
-  },
-  {
-    id: "SUP006",
-    name: "Công ty TNHH Điện tử MNO",
-    contactPerson: "Võ Thị U",
-    email: "sales@mno.vn",
-    phone: "0163285974",
-    address: "987 Đường MNO, Quận 9, TP. HCM",
-    taxCode: "3366445588",
-    status: "inactive",
-    createdAt: "2024-01-30",
-  },
-];
+import { getSuppliers, updateSupplier, deleteSupplier } from "../services/admin";
+import { SupplierResponse } from "../types/supplier.types";
+import { PaginatedResponse } from "../types/admin.types";
+import ModalAddSupplier from "../components/supplier/ModalAddSupplier";
+import EditPopup from "../components/supplier/EditPopup";
 
 export default function SupplierManagement() {
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [suppliers, setSuppliers] = useState<SupplierResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [addIsOpen, setAddIsOpen] = useState(false);
+  const [editIsOpen, setEditIsOpen] = useState(false);
+  const [selectedSupplier, setSelectedSupplier] = useState<SupplierResponse | null>(null);
 
-  // Mock API call
+  // Fetch suppliers from API
   const fetchSuppliers = async () => {
     setLoading(true);
     setError("");
     
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      
-      // Get data from localStorage or use initial data
-      const storedData = localStorage.getItem("suppliers");
-      if (storedData) {
-        setSuppliers(JSON.parse(storedData) as Supplier[]);
-      } else {
-        setSuppliers(initialSuppliers);
-        localStorage.setItem("suppliers", JSON.stringify(initialSuppliers));
-      }
+      const data = await getSuppliers();
+      // Handle both array and paginated response
+      const suppliersList = Array.isArray(data) 
+        ? data 
+        : (data as PaginatedResponse<SupplierResponse>).data || [];
+      setSuppliers(suppliersList);
     } catch (err) {
-      setError("Không thể tải dữ liệu nhà cung cấp");
+      const errorMessage = err instanceof Error ? err.message : "Không thể tải dữ liệu nhà cung cấp";
+      setError(errorMessage);
       console.error("Error fetching suppliers:", err);
     } finally {
       setLoading(false);
@@ -122,20 +44,64 @@ export default function SupplierManagement() {
     fetchSuppliers();
   }, []);
 
-  const handleToggleStatus = async (id: string) => {
+  const handleToggleStatus = async (id: number) => {
     try {
-      const updatedSuppliers = suppliers.map((supplier) =>
-        supplier.id === id
-          ? { ...supplier, status: (supplier.status === "active" ? "inactive" : "active") as "active" | "inactive" }
-          : supplier
-      );
-      setSuppliers(updatedSuppliers);
-      localStorage.setItem("suppliers", JSON.stringify(updatedSuppliers));
-      
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      const supplier = suppliers.find((s) => s.id === id);
+      if (!supplier) return;
+
+      const updatedSupplier = await updateSupplier(id, {
+        isActive: !supplier.isActive,
+      });
+
+      // Update local state
+      setSuppliers(suppliers.map((s) => (s.id === id ? updatedSupplier : s)));
     } catch (err) {
-      setError("Không thể cập nhật trạng thái");
+      const errorMessage = err instanceof Error ? err.message : "Không thể cập nhật trạng thái";
+      setError(errorMessage);
+      console.error("Error updating supplier:", err);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("Bạn có chắc chắn muốn xóa nhà cung cấp này?")) return;
+    
+    try {
+      await deleteSupplier(id);
+      setSuppliers(suppliers.filter((s) => s.id !== id));
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Không thể xóa nhà cung cấp";
+      setError(errorMessage);
+      console.error("Error deleting supplier:", err);
+    }
+  };
+
+  const openAddModal = () => setAddIsOpen(true);
+  const closeAddModal = () => {
+    setAddIsOpen(false);
+    fetchSuppliers(); // Refresh list after adding
+  };
+
+  const openEditModal = (supplier: SupplierResponse) => {
+    setSelectedSupplier(supplier);
+    setEditIsOpen(true);
+  };
+  
+  const closeEditModal = () => {
+    setEditIsOpen(false);
+    setSelectedSupplier(null);
+  };
+
+  const handleEdit = async (updatedData: Partial<SupplierResponse>) => {
+    if (!selectedSupplier) return;
+    
+    try {
+      const updatedSupplier = await updateSupplier(selectedSupplier.id, updatedData);
+      setSuppliers(suppliers.map((s) => (s.id === selectedSupplier.id ? updatedSupplier : s)));
+      closeEditModal();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Không thể cập nhật nhà cung cấp";
+      setError(errorMessage);
+      console.error("Error updating supplier:", err);
     }
   };
 
@@ -148,7 +114,14 @@ export default function SupplierManagement() {
       <PageBreadcrumb pageTitle="Quản lý Nhà cung cấp" />
       
       <div className="space-y-6">
-        <ComponentCard title="Danh sách Nhà cung cấp">
+        <ComponentCard 
+          title="Danh sách Nhà cung cấp"
+          extra={
+            <Button size="sm" onClick={openAddModal}>
+              Thêm nhà cung cấp
+            </Button>
+          }
+        >
           {loading ? (
             <div className="py-12 text-center">
               <p className="text-gray-500 dark:text-gray-400">Đang tải dữ liệu...</p>
@@ -156,6 +129,14 @@ export default function SupplierManagement() {
           ) : error ? (
             <div className="py-12 text-center">
               <p className="text-red-500">{error}</p>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={fetchSuppliers}
+                className="mt-4"
+              >
+                Thử lại
+              </Button>
             </div>
           ) : (
             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
@@ -179,7 +160,7 @@ export default function SupplierManagement() {
                         isHeader
                         className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                       >
-                        Người liên hệ
+                        Mã số thuế
                       </TableCell>
                       <TableCell
                         isHeader
@@ -191,7 +172,7 @@ export default function SupplierManagement() {
                         isHeader
                         className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                       >
-                        Số điện thoại
+                        Địa chỉ
                       </TableCell>
                       <TableCell
                         isHeader
@@ -209,46 +190,72 @@ export default function SupplierManagement() {
                   </TableHeader>
 
                   <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                    {suppliers.map((supplier) => (
-                      <TableRow key={supplier.id}>
-                        <TableCell className="px-5 py-4 text-gray-800 text-theme-sm dark:text-white/90 font-medium">
-                          {supplier.id}
-                        </TableCell>
-                        <TableCell className="px-5 py-4">
-                          <div className="max-w-xs">
-                            <span className="text-gray-800 text-theme-sm dark:text-white/90 font-medium">
-                              {supplier.name}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="px-5 py-4 text-gray-500 text-theme-sm dark:text-gray-400">
-                          {supplier.contactPerson}
-                        </TableCell>
-                        <TableCell className="px-5 py-4 text-gray-500 text-theme-sm dark:text-gray-400">
-                          {supplier.email}
-                        </TableCell>
-                        <TableCell className="px-5 py-4 text-gray-500 text-theme-sm dark:text-gray-400">
-                          {supplier.phone}
-                        </TableCell>
-                        <TableCell className="px-5 py-4 text-start">
-                          <Badge
-                            size="sm"
-                            color={supplier.status === "active" ? "success" : "error"}
-                          >
-                            {supplier.status === "active" ? "Hoạt động" : "Không hoạt động"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="px-5 py-4">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleToggleStatus(supplier.id)}
-                          >
-                            {supplier.status === "active" ? "Vô hiệu hóa" : "Kích hoạt"}
-                          </Button>
+                    {suppliers.length === 0 && !loading ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className="px-5 py-8 text-center text-gray-500 dark:text-gray-400">
+                          Không có dữ liệu
                         </TableCell>
                       </TableRow>
-                    ))}
+                    ) : (
+                      suppliers.map((supplier) => (
+                        <TableRow key={supplier.id}>
+                          <TableCell className="px-5 py-4 text-gray-800 text-theme-sm dark:text-white/90 font-medium">
+                            {supplier.id}
+                          </TableCell>
+                          <TableCell className="px-5 py-4">
+                            <div className="max-w-xs">
+                              <span className="text-gray-800 text-theme-sm dark:text-white/90 font-medium">
+                                {supplier.name}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="px-5 py-4 text-gray-500 text-theme-sm dark:text-gray-400">
+                            {supplier.taxCode}
+                          </TableCell>
+                          <TableCell className="px-5 py-4 text-gray-500 text-theme-sm dark:text-gray-400">
+                            {supplier.email}
+                          </TableCell>
+                          <TableCell className="px-5 py-4 text-gray-500 text-theme-sm dark:text-gray-400">
+                            <div className="max-w-xs truncate" title={supplier.address}>
+                              {supplier.address}
+                            </div>
+                          </TableCell>
+                          <TableCell className="px-5 py-4 text-start">
+                            <Badge
+                              size="sm"
+                              color={supplier.isActive ? "success" : "error"}
+                            >
+                              {supplier.isActive ? "Hoạt động" : "Không hoạt động"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="px-5 py-4">
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => openEditModal(supplier)}
+                              >
+                                Sửa
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleToggleStatus(supplier.id)}
+                              >
+                                {supplier.isActive ? "Vô hiệu hóa" : "Kích hoạt"}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleDelete(supplier.id)}
+                              >
+                                Xóa
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </div>
@@ -262,7 +269,14 @@ export default function SupplierManagement() {
           )}
         </ComponentCard>
       </div>
+
+      <ModalAddSupplier addIsOpen={addIsOpen} closeAddModal={closeAddModal} />
+      <EditPopup 
+        editIsOpen={editIsOpen} 
+        closeEditModal={closeEditModal}
+        handleEdit={handleEdit}
+        supplier={selectedSupplier}
+      />
     </>
   );
 }
-

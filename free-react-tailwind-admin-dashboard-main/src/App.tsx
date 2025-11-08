@@ -44,47 +44,12 @@ export default function App() {
           <Route element={<AppLayout />}>
             <Route index path="/" element={<Home />} />
 
-            {/* Protected Admin Pages */}
-            <Route
-              path="/new"
-              element={
-                <ProtectedRoute roles={["admin"]}>
-                  <New />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/departments"
-              element={
-                <ProtectedRoute roles={["admin"]}>
-                  <Department />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/suppliers"
-              element={
-                <ProtectedRoute roles={["admin"]}>
-                  <Supplier />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/assets"
-              element={
-                <ProtectedRoute roles={["admin"]}>
-                  <AssetManagement />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/department-assets"
-              element={
-                <ProtectedRoute roles={["admin"]}>
-                  <DepartmentAssets />
-                </ProtectedRoute>
-              }
-            />
+            {/* Admin Pages */}
+            <Route path="/new" element={<New />} />
+            <Route path="/departments" element={<Department />} />
+            <Route path="/suppliers" element={<Supplier />} />
+            <Route path="/assets" element={<AssetManagement />} />
+            <Route path="/department-assets" element={<DepartmentAssets />} />
             <Route path="/my-assets" element={<MyAssets />} />
 
             {/* Asset Manager */}

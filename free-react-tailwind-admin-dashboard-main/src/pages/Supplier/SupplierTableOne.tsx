@@ -33,7 +33,7 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
       isActive: false,
     }
 
-    const res = await deleteSupplierApi(data);
+    // const res = await deleteSupplierApi(data);
     console.log("delete", res);
     fetchListSupplier();
     closeDeleteModal();

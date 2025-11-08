@@ -4,35 +4,51 @@ import PageMeta from "../components/common/PageMeta";
 import ComponentCard from "../components/common/ComponentCard";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../components/ui/table";
 import Badge from "../components/ui/badge/Badge";
-
-interface DeptAssetRow {
-  employee: string;
-  asset: string;
-  serial: string;
-  type: string;
-  status: "in_use" | "maintenance" | "lost";
-}
+import { getDepartmentAssets } from "../services/departmentAssetService";
+import { AssetResponse } from "../types/asset.types";
+import { PaginatedResponse } from "../types/admin.types";
 
 export default function DepartmentAssets() {
-  const [rows, setRows] = useState<DeptAssetRow[]>([]);
+  const [assets, setAssets] = useState<AssetResponse[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      await new Promise((r) => setTimeout(r, 300));
-      const mock: DeptAssetRow[] = [
-        { employee: "Nguyễn Văn A", asset: "Laptop MacBook Pro 14", serial: "SN-MBP14-2022-888", type: "Laptop", status: "in_use" },
-        { employee: "Nguyễn Văn A", asset: "Bàn phím Keychron K2", serial: "SN-KCK2-2021-111", type: "Phụ kiện", status: "in_use" },
-        { employee: "Trần Thị B", asset: "Màn hình Dell 24\"", serial: "SN-DEL24-2020-222", type: "Màn hình", status: "maintenance" },
-        { employee: "Trần Thị B", asset: "Chuột Logitech M590", serial: "SN-LGM590-2023-333", type: "Phụ kiện", status: "in_use" },
-        { employee: "Phạm C", asset: "Laptop ThinkPad X1", serial: "SN-X1-2021-444", type: "Laptop", status: "lost" },
-      ];
-      setRows(mock);
-      setLoading(false);
+      setError("");
+      try {
+        const data = await getDepartmentAssets();
+        // Handle paginated response
+        const assetsList = (data as PaginatedResponse<AssetResponse>).data || [];
+        setAssets(assetsList);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "Không thể tải dữ liệu tài sản";
+        setError(errorMessage);
+        console.error("Error fetching department assets:", err);
+      } finally {
+        setLoading(false);
+      }
     };
     load();
   }, []);
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "ASSIGNED":
+        return { color: "success" as const, label: "Đang sử dụng" };
+      case "MAINTENANCE":
+        return { color: "warning" as const, label: "Bảo trì" };
+      case "LOST":
+        return { color: "error" as const, label: "Mất" };
+      case "IN_STOCK":
+        return { color: "success" as const, label: "Trong kho" };
+      case "RETIRED":
+        return { color: "error" as const, label: "Đã thanh lý" };
+      default:
+        return { color: "success" as const, label: status };
+    }
+  };
 
   return (
     <>
@@ -44,38 +60,55 @@ export default function DepartmentAssets() {
             <div className="py-12 text-center">
               <p className="text-gray-500 dark:text-gray-400">Đang tải dữ liệu...</p>
             </div>
+          ) : error ? (
+            <div className="py-12 text-center">
+              <p className="text-red-500">{error}</p>
+            </div>
           ) : (
             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
               <div className="max-w-full overflow-x-auto">
                 <Table>
                   <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                     <TableRow>
-                      <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Nhân viên</TableCell>
-                      <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Tài sản</TableCell>
-                      <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Serial</TableCell>
-                      <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Loại tài sản</TableCell>
+                      <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Tên tài sản</TableCell>
+                      <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Vị trí</TableCell>
+                      <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Mô tả</TableCell>
+                      <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Giá trị</TableCell>
                       <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Trạng thái</TableCell>
                     </TableRow>
                   </TableHeader>
                   <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                    {rows.map((r, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell className="px-5 py-4 text-gray-800 text-theme-sm dark:text-white/90 font-medium">{r.employee}</TableCell>
-                        <TableCell className="px-5 py-4 text-gray-800 text-theme-sm dark:text-white/90">{r.asset}</TableCell>
-                        <TableCell className="px-5 py-4 text-gray-500 text-theme-sm dark:text-gray-400">{r.serial}</TableCell>
-                        <TableCell className="px-5 py-4 text-gray-500 text-theme-sm dark:text-gray-400">{r.type}</TableCell>
-                        <TableCell className="px-5 py-4 text-start">
-                          <Badge size="sm" color={r.status === "in_use" ? "success" : r.status === "maintenance" ? "warning" : "error"}>
-                            {r.status === "in_use" ? "Đang sử dụng" : r.status === "maintenance" ? "Bảo trì" : "Mất"}
-                          </Badge>
+                    {assets.length === 0 ? (
+                      <TableRow>
+                        <TableCell className="px-5 py-8 text-center text-gray-500 dark:text-gray-400">
+                          Không có dữ liệu
                         </TableCell>
                       </TableRow>
-                    ))}
+                    ) : (
+                      assets.map((asset) => {
+                        const badge = getStatusBadge(asset.status);
+                        return (
+                          <TableRow key={asset.id}>
+                            <TableCell className="px-5 py-4 text-gray-800 text-theme-sm dark:text-white/90 font-medium">{asset.name}</TableCell>
+                            <TableCell className="px-5 py-4 text-gray-500 text-theme-sm dark:text-gray-400">{asset.location || "N/A"}</TableCell>
+                            <TableCell className="px-5 py-4 text-gray-500 text-theme-sm dark:text-gray-400">{asset.description || "N/A"}</TableCell>
+                            <TableCell className="px-5 py-4 text-gray-500 text-theme-sm dark:text-gray-400">
+                              {asset.value ? new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(asset.value) : "N/A"}
+                            </TableCell>
+                            <TableCell className="px-5 py-4 text-start">
+                              <Badge size="sm" color={badge.color}>
+                                {badge.label}
+                              </Badge>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
+                    )}
                   </TableBody>
                 </Table>
               </div>
               <div className="px-5 py-4 border-t border-gray-100 dark:border-white/[0.05]">
-                <p className="text-sm text-gray-500 dark:text-gray-400">Tổng: <span className="font-semibold text-gray-800 dark:text-white/90">{rows.length}</span> tài sản</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Tổng: <span className="font-semibold text-gray-800 dark:text-white/90">{assets.length}</span> tài sản</p>
               </div>
             </div>
           )}

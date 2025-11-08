@@ -4,13 +4,11 @@ import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Button from "../ui/button/Button";
-
-// API base URL - adjust this to match your backend
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
+import { API_BASE_URL } from "../../config/api";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -23,14 +21,14 @@ export default function SignInForm() {
 
     try {
       // Special case for dnag98
-      if (email === "dnag98" || email === "dnag98@example.com") {
+      if (username === "dnag98" || username === "dnag98@example.com") {
         // Mock successful login for dnag98
         const mockUser = {
-          email: email,
+          username: username,
           role: "ADMIN",
           name: "Dang Nguyen",
         };
-        localStorage.setItem("token", "mock_token_dnag98");
+        localStorage.setItem("access_token", "mock_token_dnag98");
         localStorage.setItem("user", JSON.stringify(mockUser));
         setLoading(false);
         const role = mockUser.role;
@@ -40,20 +38,86 @@ export default function SignInForm() {
       }
 
       // Regular API login
-      const res = await fetch(`${API_BASE_URL}/auth/login`, {
+      // Backend endpoint: /auth/login (not /api/auth/login)
+      const loginUrl = `${API_BASE_URL}/auth/login`;
+      console.log("Attempting login to:", loginUrl);
+      console.log("Request payload:", { username, password: "***" });
+      
+      const res = await fetch(loginUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        headers: { 
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // Include credentials for CORS
+        body: JSON.stringify({ username, password }),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Login failed");
+      console.log("Login response status:", res.status, res.statusText);
+      console.log("Login response headers:", Object.fromEntries(res.headers.entries()));
+
+      // Check if response is OK and has content
+      if (!res.ok) {
+        let errorMessage = `Login failed with status ${res.status}`;
+        try {
+          // Try to get response as text first
+          const responseText = await res.clone().text();
+          console.log("Error response text:", responseText);
+          
+          if (responseText) {
+            try {
+              const errorData = JSON.parse(responseText);
+              errorMessage = errorData.message || errorData.error || errorMessage;
+            } catch {
+              // If not JSON, use text as error message
+              errorMessage = responseText || errorMessage;
+            }
+          }
+        } catch (parseError) {
+          console.error("Error parsing error response:", parseError);
+          if (res.status === 403) {
+            errorMessage = "Access forbidden. Please check your credentials or contact administrator.";
+          } else if (res.status === 401) {
+            errorMessage = "Invalid username or password.";
+          }
+        }
+        throw new Error(errorMessage);
+      }
+
+      // Parse JSON response for successful response
+      let data;
+      const contentType = res.headers.get("content-type");
+      console.log("Response content-type:", contentType);
       
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      if (contentType && contentType.includes("application/json")) {
+        const responseText = await res.text();
+        console.log("Response text:", responseText);
+        
+        if (responseText && responseText.trim()) {
+          try {
+            data = JSON.parse(responseText);
+          } catch (parseError) {
+            console.error("Error parsing JSON response:", parseError);
+            throw new Error("Invalid JSON response from server");
+          }
+        } else {
+          throw new Error("Empty response from server");
+        }
+      } else {
+        const responseText = await res.text();
+        console.warn("Non-JSON response received:", responseText);
+        throw new Error(`Invalid response format. Expected JSON but received: ${contentType || "unknown"}`);
+      }
+      
+      // Store access token (matching axiosInstance expectation)
+      if (data.token || data.accessToken) {
+        localStorage.setItem("access_token", data.token || data.accessToken);
+      }
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
       
       // Check role and navigate accordingly
-      const role: string = data.user?.role?.toUpperCase?.() || "USER";
+      const role: string = data.user?.role?.toUpperCase?.() || data.role?.toUpperCase?.() || "USER";
       const redirect = role === "ADMIN" ? "/users" : role === "ASSET_MANAGER" ? "/dashboard-operations" : role === "DEPT_MANAGER" ? "/department-assets" : role === "VIEWER" ? "/dashboard-overview" : "/my-assets";
       navigate(redirect);
     } catch (err) {
@@ -84,11 +148,11 @@ export default function SignInForm() {
           <form onSubmit={handleSubmit}>
             <div className="space-y-6">
               <div>
-                <Label>Email <span className="text-error-500">*</span></Label>
+                <Label>Username <span className="text-error-500">*</span></Label>
                 <Input
-                  placeholder="info@gmail.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                 />
               </div>
               <div>

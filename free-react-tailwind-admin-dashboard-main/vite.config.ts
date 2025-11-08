@@ -15,4 +15,22 @@ export default defineConfig({
       },
     }),
   ],
+  server: {
+    proxy: {
+      // Proxy /auth/* requests to backend (e.g., /auth/login -> http://localhost:8080/auth/login)
+      "/auth": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        secure: false,
+        ws: true,
+      },
+      // Proxy /api/* requests to backend (for other APIs like /api/admin/*, /api/user/*)
+      "/api": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        secure: false,
+        ws: true,
+      },
+    },
+  },
 });
