@@ -140,6 +140,13 @@ export async function createAssetApi(data: any) {
     return res;
 }
 
+export async function deleteAssetApi(data: any) {
+    const res = await axiosInstance.delete(
+        `${API_BACKEND_URL2}/assets/${data.id}`
+    );
+    return res;
+}
+
 export async function getListCategoryApi() {
     try {
         const response = await axiosInstance.get(

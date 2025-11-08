@@ -20,7 +20,7 @@ import EditPopup from "./EditPopup";
 import ModalConfirmDelete from "../../components/ui/modal/ModalConfirmDelete";
 import FilterPopup from "./FilterPopup.tsx";
 import HistoryModal from "./HistoryModal.tsx";
-import { getListAssetApi } from "../../api/adminApi.ts";
+import { deleteAssetApi, getListAssetApi } from "../../api/adminApi.ts";
 
 
 
@@ -34,6 +34,7 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
   const [assets, setAssets] = useState<any>([]);
   const [filteredAssets, setFilteredAssets] = useState<any>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [selectedAsset, setSelectedAsset] = useState<any>(null);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -67,9 +68,12 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
     XLSX.writeFile(wb, "tai_san.xlsx");
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     // Handle delete logic here
     console.log("Deleting item...");
+    const res = await deleteAssetApi(selectedAsset);
+    console.log("Delete response:", res);
+    fetchListAsset();
     closeDeleteModal();
   };
 
@@ -126,19 +130,21 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
     setHistoryIsOpen(false);
   };
 
-  useEffect(() => {
-    const fetchListAsset = async () => {
-      try {
-        // Call the API to get the list of assets
-        const response = await getListAssetApi();
-        setIsLoading(false);
+  const fetchListAsset = async () => {
+    try {
+      // Call the API to get the list of assets
+      const response = await getListAssetApi();
+      setIsLoading(false);
 
-        setAssets(response.data.content);
-        setFilteredAssets(response.data.content);
-      } catch (error) {
-        console.error("Error fetching asset list:", error);
-      }
-    };
+      setAssets(response.data.content);
+      setFilteredAssets(response.data.content);
+    } catch (error) {
+      console.error("Error fetching asset list:", error);
+    }
+  };
+
+  useEffect(() => {
+
     fetchListAsset();
   }, [])
 
@@ -306,13 +312,19 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
                       className="hover:bg-blue-50 p-1 rounded-full hover:text-[#6082B6]"
                     />
                     <MdDelete
-                      onClick={openDeleteModal}
+                      onClick={() => {
+                        setSelectedAsset(asset);
+                        openDeleteModal();
+                      }}
                       size={30}
                       className="hover:bg-red-100 p-1 rounded-full hover:text-red-500"
                     />
 
                     <IoIosInformationCircle
-                      onClick={openHistoryModal}
+                      onClick={() => {
+                        setSelectedAsset(asset);
+                        openHistoryModal();
+                      }}
                       size={30}
                       className="hover:bg-blue-50 p-1 rounded-full hover:text-[#6082B6]"
                     />
