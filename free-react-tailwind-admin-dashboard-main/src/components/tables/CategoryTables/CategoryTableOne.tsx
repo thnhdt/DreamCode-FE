@@ -28,8 +28,10 @@ export default function CategoryTableOne({ isOpen, closeModal }: any) {
     // Handle save logic here
     console.log("Saving changes...");
     const res = await createCategoryApi(formdata);
+
     console.log("create category", res);
     closeModal();
+
   };
 
   const handleSelectName = () => {
@@ -50,12 +52,14 @@ export default function CategoryTableOne({ isOpen, closeModal }: any) {
     // Handle save logic here
     console.log("Delete changes...");
     const res = await deleteCategoryApi(categoryChosen);
-    // if (res.status !== 200) {
-    //   alert("Xóa loại tài sản thất bại");
-    //   return;
-    // }
+
     fetchData();
     closeDeleteModal();
+
+
+    if (res.status !== 200) {
+      alert("Xóa loại tài sản thất bại");
+    }
   };
 
   const openDeleteModal = () => {

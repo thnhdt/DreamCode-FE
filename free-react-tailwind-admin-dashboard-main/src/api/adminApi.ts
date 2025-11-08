@@ -1,6 +1,4 @@
-// Re-export all admin services for backward compatibility
-// ✅ Recommended: Import directly from services/admin instead
-
+import { data } from "react-router";
 import axiosInstance from "../utils/axiosInstance";
 import { CreateDepartmentRequest } from "../types/admin.types";
 
@@ -133,13 +131,11 @@ export async function getListAssetApi() {
   return res;
 }
 
-// ============================================================
-// CATEGORY APIs
-// ============================================================
+export async function createAssetApi(data: any) {
+    const res = await axiosInstance.post(`${API_BACKEND_URL2}/assets`, data);
+    return res;
+}
 
-/**
- * Get list of categories (with mock fallback)
- */
 export async function getListCategoryApi() {
   try {
     const response = await axiosInstance.get(`${API_BACKEND_URL2}/categories`);

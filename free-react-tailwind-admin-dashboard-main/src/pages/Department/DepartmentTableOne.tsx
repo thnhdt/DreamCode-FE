@@ -156,10 +156,10 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: Departm
           </div>
         )}
 
-        {error && !isLoading && <div className="p-4 text-center text-red-500 text-sm">{error}</div>}
-
-        {!isLoading && !error && departments.length === 0 && (
-          <div className="p-4 text-center text-gray-500 text-sm">Không có dữ liệu</div>
+        {departments.length === 0 && !isLoading && (
+          <div className="flex justify-center items-center bg-white h-32">
+            <p className="text-gray-500 text-theme-sm">Không có dữ liệu</p>
+          </div>
         )}
       </div>
 
