@@ -20,11 +20,11 @@ import EditPopup from "./EditPopup";
 import ModalConfirmDelete from "../../components/ui/modal/ModalConfirmDelete";
 import FilterPopup from "./FilterPopup.tsx";
 import HistoryModal from "./HistoryModal.tsx";
-import { assignAssetApi, deleteAssetApi, getListAssetApi } from "../../api/adminApi.ts";
-
-
-
-
+import {
+  assignAssetApi,
+  deleteAssetApi,
+  getListAssetApi,
+} from "../../api/adminApi.ts";
 
 export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
   const [deleteIsOpen, setDeleteIsOpen] = useState<boolean>(false);
@@ -44,15 +44,11 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
     const data = assets.filter(
       (asset: any) =>
         asset.name?.includes(query) ||
-        asset.code?.includes(query) ||
-        asset.user?.includes(query)
+        asset.id?.toString().includes(query) ||
+        asset.status?.includes(query) ||
+        asset.category?.name?.includes(query) ||
+        asset.department?.name?.includes(query)
     );
-
-    console.log(assets);
-
-
-    console.log(query);
-
 
     setFilteredAssets(data);
   };
@@ -87,7 +83,7 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
 
   const handleEdit = async (formData: any) => {
     // Handle edit logic here
-    const res = await assignAssetApi(formData)
+    const res = await assignAssetApi(formData);
 
     setEditIsOpen(false);
   };
@@ -145,9 +141,8 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
   };
 
   useEffect(() => {
-
     fetchListAsset();
-  }, [])
+  }, []);
 
   return (
     <div className="bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-xl overflow-hidden">
@@ -345,7 +340,11 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
         )}
       </div>
 
-      <ModalAddAsset addIsOpen={addIsOpen} closeAddModal={closeAddModal} fetchListAsset={fetchListAsset} />
+      <ModalAddAsset
+        addIsOpen={addIsOpen}
+        closeAddModal={closeAddModal}
+        fetchListAsset={fetchListAsset}
+      />
 
       <EditPopup
         editIsOpen={editIsOpen}
