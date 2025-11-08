@@ -1,3 +1,4 @@
+import { data } from "react-router";
 import axiosInstance from "../utils/axiosInstance";
 
 const API_BACKEND_URL = "http://localhost:8080/api/admin";
@@ -54,6 +55,11 @@ export async function deleteSupplierApi(data: any) {
 
 export async function getListAssetApi() {
     const res = await axiosInstance.get(`${API_BACKEND_URL2}/assets`);
+    return res;
+}
+
+export async function createAssetApi(data: any) {
+    const res = await axiosInstance.post(`${API_BACKEND_URL2}/assets`, data);
     return res;
 }
 

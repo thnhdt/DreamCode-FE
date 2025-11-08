@@ -162,6 +162,12 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
             <div className="border-4 border-blue-500 border-t-transparent rounded-full w-16 h-16 animate-spin" />
           </div>
         )}
+
+        {departments.length === 0 && !isLoading && (
+          <div className="flex justify-center items-center bg-white h-32">
+            <p className="text-gray-500 text-theme-sm">Không có dữ liệu</p>
+          </div>
+        )}
       </div>
 
       <ModalAddDepartment
