@@ -1,5 +1,7 @@
 // Re-export all admin services for backward compatibility
 // ✅ Recommended: Import directly from services/admin instead
+const API_BACKEND_URL = "http://localhost:8080/api/admin";
+const API_BACKEND_URL2 = "http://localhost:8080/api";
 export {
     // User services
     createUser,
@@ -101,9 +103,9 @@ export {
    * Get list of department managers
    * @deprecated Use getDepartmentManagers from services/admin instead
    */
-  export async function getListDeptManagerApi() {
-    return await getDepartmentManagers();
-  }
+  // export async function getListDeptManagerApi() {
+  //   return await getDepartmentManagers();
+  // }
 
 
 /**
@@ -130,15 +132,15 @@ export async function deleteSupplierApi(data: any) {
     return res;
 }
 
-export async function getListAssetApi() {
-    const res = await axiosInstance.get(`${API_BACKEND_URL2}/assets`);
-    return res;
-}
+// export async function getListAssetApi() {
+//     const res = await axiosInstance.get(`${API_BACKEND_URL2}/assets`);
+//     return res;
+// }
 
-export async function getListCategoryApi() {
-    const res = await axiosInstance.get(`${API_BACKEND_URL2}/categories`);
-    return res;
-}
+// export async function getListCategoryApi() {
+//     const res = await axiosInstance.get(`${API_BACKEND_URL2}/categories`);
+//     return res;
+// }
 
 export async function createCategoryApi(data: any) {
     const res = await axiosInstance.post(
