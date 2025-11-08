@@ -231,6 +231,6 @@ export async function deleteCategoryApi(data: any) {
  * @deprecated Use getDepartmentManagers from services/admin instead
  */
 export async function getListDeptManagerApi() {
-    const res = await axiosInstance.get(`${API_BACKEND_URL}/dept-managers`);
+    const res = await axiosInstance.get(`${API_BACKEND_URL}/users/active`);
     return res;
 }
