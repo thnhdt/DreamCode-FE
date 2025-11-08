@@ -57,9 +57,7 @@ export default function CategoryTableOne({ isOpen, closeModal }: any) {
     closeDeleteModal();
 
 
-    if (res.status !== 200) {
-      alert("Xóa loại tài sản thất bại");
-    }
+
   };
 
   const openDeleteModal = () => {
@@ -73,8 +71,8 @@ export default function CategoryTableOne({ isOpen, closeModal }: any) {
   const fetchData = async () => {
     // Fetch data logic here
     const res = await getListCategoryApi();
-    console.log("Category List:", res.data.content);
-    setListCategory(res.data.content);
+    console.log("Category List:", res.content);
+    setListCategory(res.content);
   }
 
   useEffect(() => {

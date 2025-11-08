@@ -104,6 +104,9 @@ export default function ModalAddAsset({ addIsOpen, closeAddModal }: any) {
         fetchCategory();
     }, [])
 
+    console.log(listCategory);
+
+
     const fetchListSupplier = async () => {
         try {
             const response = await getListSupplierApi();

@@ -99,7 +99,7 @@ export async function postDepartmentApi(data: CreateDepartmentRequest) {
  * @deprecated Use getSuppliers from services/admin instead
  */
 export async function getListSupplierApi() {
-    const res = await axiosInstance.get(`${API_BACKEND_URL}/suppliers`);
+    const res = await axiosInstance.get(`${API_BACKEND_URL}/suppliers/active`);
     return res;
 }
 
@@ -145,7 +145,7 @@ export async function getListCategoryApi() {
         const response = await axiosInstance.get(
             `${API_BACKEND_URL2}/categories`
         );
-        return response.data;
+        return response;
     } catch (error) {
         console.warn("Failed to fetch categories, using mock data:", error);
         // Mock data fallback
