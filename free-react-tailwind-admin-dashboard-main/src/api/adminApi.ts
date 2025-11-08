@@ -145,7 +145,7 @@ export async function getListCategoryApi() {
         const response = await axiosInstance.get(
             `${API_BACKEND_URL2}/categories`
         );
-        return response;
+        return response.data;
     } catch (error) {
         console.warn("Failed to fetch categories, using mock data:", error);
         // Mock data fallback

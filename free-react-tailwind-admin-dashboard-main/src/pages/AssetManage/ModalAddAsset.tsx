@@ -93,7 +93,7 @@ export default function ModalAddAsset({ addIsOpen, closeAddModal }: any) {
     const fetchCategory = async () => {
         // Fetch data logic here
         const res = await getListCategoryApi();
-        const formatData = res.data.content.map((item: any) => ({
+        const formatData = res.content.map((item: any) => ({
             value: item.id,
             label: item.name,
         }));
@@ -104,7 +104,6 @@ export default function ModalAddAsset({ addIsOpen, closeAddModal }: any) {
         fetchCategory();
     }, [])
 
-    console.log(listCategory);
 
 
     const fetchListSupplier = async () => {
