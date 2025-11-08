@@ -155,6 +155,14 @@ export async function assignAssetApi(data: any) {
     return res;
 }
 
+export async function revokeAssetApi(data: any) {
+    const res = await axiosInstance.post(
+        `${API_BACKEND_URL2}/assets/revoke`,
+        data
+    );
+    return res;
+}
+
 export async function getListCategoryApi() {
     try {
         const response = await axiosInstance.get(

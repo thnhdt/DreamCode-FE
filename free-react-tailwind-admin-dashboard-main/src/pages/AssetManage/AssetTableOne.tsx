@@ -24,6 +24,7 @@ import {
   assignAssetApi,
   deleteAssetApi,
   getListAssetApi,
+  revokeAssetApi,
 } from "../../api/adminApi.ts";
 
 export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
@@ -81,11 +82,23 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
     setDeleteIsOpen(false);
   };
 
-  const handleEdit = async (formData: any) => {
+  const handleEdit = async (title: any, formData: any) => {
     // Handle edit logic here
-    const res = await assignAssetApi(formData);
-    fetchListAsset();
+    console.log("---------------------------------------------", formData);
 
+    if (title === "assign") {
+      const res = await assignAssetApi(formData);
+    }
+
+    if (title === "revoke") {
+      // Call revoke API here
+      const res = await revokeAssetApi(formData);
+      console.log("Revoke data:", formData);
+    }
+
+
+
+    fetchListAsset();
     setEditIsOpen(false);
   };
 
@@ -127,6 +140,23 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
   const closeHistoryModal = () => {
     setHistoryIsOpen(false);
   };
+
+  function calculateRemainingPercent(purchaseDate: string | Date, depreciationMonths: number) {
+    const date = new Date(purchaseDate); // chuyển về Date
+
+    const now = new Date();
+
+    const diffInMonths =
+      (now.getFullYear() - date.getFullYear()) * 12 +
+      (now.getMonth() - date.getMonth());
+
+    const usedMonths = Math.max(diffInMonths, 0);
+    const remaining = depreciationMonths - usedMonths;
+    const percentLeft = Math.max((remaining / depreciationMonths) * 100, 0);
+
+    return Math.round(percentLeft);
+  }
+
 
   const fetchListAsset = async () => {
     try {
@@ -273,6 +303,13 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
                 isHeader
                 className="px-5 py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400 text-start"
               >
+                Khấu hao
+              </TableCell>
+
+              <TableCell
+                isHeader
+                className="px-5 py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400 text-start"
+              >
                 Hành động
               </TableCell>
             </TableRow>
@@ -297,8 +334,11 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
                   {asset?.users?.length > 0 ? asset.users[0].userName : "--"}
                 </TableCell>
+
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
-                  {asset.department?.name}
+                  {isNaN(calculateRemainingPercent(asset.purchaseDate, asset.usefulLifeMonths))
+                    ? "---"
+                    : `${calculateRemainingPercent(asset.purchaseDate, asset.usefulLifeMonths)}%`}
                 </TableCell>
 
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">

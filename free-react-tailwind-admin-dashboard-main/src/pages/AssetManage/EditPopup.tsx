@@ -23,12 +23,37 @@ export default function EditPopup({
 
   const [isCheckedEviction, setIsCheckedEviction] = useState(false);
   const [isCheckedLiquidation, setIsCheckedLiquidation] = useState(false);
+
   const [listUser, setListUser] = useState([]);
   const [formData, setFormData] = useState({});
+  const [revokeData, setRevokeData] = useState({});
 
   const handleSelectChange = (value: string) => {
     setFormData({ ...formData, userIds: [Number(value)] });
   };
+
+
+  const handleSelectRevokeDate = () => {
+    const value = (document.getElementById("assignment-date") as HTMLInputElement).value;
+
+    if (!value.trim().length) return;
+
+    const date = new Date(value); // ✅ convert string -> Date object
+
+    const iso = date.toISOString().slice(0, 19); // ✅ "2025-11-08T07:15:00"
+
+    console.log(iso);
+
+    setRevokeData({ ...revokeData, revokedTime: iso });
+  }
+
+  const handleGetReasonRevoke = () => {
+    const value = (document.getElementById("reason") as HTMLInputElement)
+      .value;
+    setRevokeData({ ...revokeData, reason: value });
+  }
+
+
 
   useEffect(() => {
     const fetchdata = async () => {
@@ -86,8 +111,10 @@ export default function EditPopup({
               <div>
                 <Label>Lý do thu hồi</Label>
                 <Input
+                  id="reason"
                   className="dark:bg-dark-900"
                   placeholder="Nhập lý do thu hồi"
+                  onChange={handleGetReasonRevoke}
                 />
               </div>
               <div>
@@ -95,6 +122,7 @@ export default function EditPopup({
                 <DatePicker
                   id="assignment-date"
                   placeholder="Chọn ngày thu hồi"
+                  onChange={handleSelectRevokeDate}
                 />
               </div>
             </>
@@ -152,7 +180,18 @@ export default function EditPopup({
                 ...formData,
                 assetId: selectedAsset.id,
               };
-              handleEdit(formatData);
+              if (selected === "assign") {
+                handleEdit("assign", formatData);
+              } else if (selected === "evict") {
+                if (!isCheckedEviction) {
+                  alert("Vui lòng xác nhận thu hồi tài sản");
+                  return;
+                }
+                handleEdit("revoke", {
+                  ...revokeData,
+                  assetId: selectedAsset.id,
+                });
+              }
             }}
           >
             Chỉnh sửa
