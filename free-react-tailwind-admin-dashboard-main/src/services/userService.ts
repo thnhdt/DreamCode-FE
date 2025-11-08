@@ -34,17 +34,23 @@ export const getCurrentUser = async (): Promise<UserResponse> => {
  * Get list of assets assigned to current user
  * GET /api/user/my-assets
  */
-export const getMyAssets = async (
-  params?: PaginationParams
-): Promise<PaginatedResponse<AssetResponse>> => {
+// ví dụ trong services/userService.ts
+export const getMyAssets = async (params?: PaginationParams): Promise<PaginatedResponse<AssetResponse>> => {
   try {
-    const response = await axiosInstance.get<PaginatedResponse<AssetResponse>>(
-      `${API_BASE_URL}/user/my-assets`,
-      { params }
-    );
-    return response.data;
-  } catch (error: any) {
+    const query = params
+      ? '?' + new URLSearchParams(params as Record<string, string>).toString()
+      : '';
+
+    const response = await fetch(`/api/user/my-assets${query}`, { cache: 'no-store' });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
     console.warn("Failed to fetch my assets, using mock data:", error);
+
     // Return mock assets with ASSIGNED status
     return {
       data: mockAssets.filter((a) => a.status === "ASSIGNED"),
@@ -55,6 +61,7 @@ export const getMyAssets = async (
     };
   }
 };
+
 
 /**
  * Get asset details assigned to current user

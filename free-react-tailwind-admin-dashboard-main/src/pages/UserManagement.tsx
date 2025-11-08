@@ -161,7 +161,7 @@ export default function UserManagement() {
     }
   };
 
-  const roleOptions = ["ADMIN", "USER", "ASSET_MANAGER", "DEPT_MANAGER", "VIEWER"].map((r) => ({
+  const roleOptions = ["ADMIN", "USER", "ASSET_MANAGER"].map((r) => ({
     value: r,
     label: r,
   }));
