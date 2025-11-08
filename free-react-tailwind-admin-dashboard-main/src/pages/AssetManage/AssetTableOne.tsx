@@ -84,6 +84,7 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
   const handleEdit = async (formData: any) => {
     // Handle edit logic here
     const res = await assignAssetApi(formData);
+    fetchListAsset();
 
     setEditIsOpen(false);
   };
@@ -294,7 +295,7 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
                   {asset.status}
                 </TableCell>
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
-                  {asset.user}
+                  {asset?.users?.length > 0 ? asset.users[0].userName : "--"}
                 </TableCell>
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
                   {asset.department?.name}
