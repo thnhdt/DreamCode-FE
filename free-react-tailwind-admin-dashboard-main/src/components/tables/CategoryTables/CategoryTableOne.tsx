@@ -30,6 +30,7 @@ export default function CategoryTableOne({ isOpen, closeModal }: any) {
     const res = await createCategoryApi(formdata);
 
     console.log("create category", res);
+    fetchData();
     closeModal();
 
   };

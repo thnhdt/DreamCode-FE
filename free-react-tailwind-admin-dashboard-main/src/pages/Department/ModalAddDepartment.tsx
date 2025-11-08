@@ -6,7 +6,7 @@ import Select from "../../components/form/Select";
 import Button from "../../components/ui/button/Button";
 import { Modal } from "../../components/ui/modal";
 
-export default function ModalAddDepartment({ addIsOpen, closeAddModal, listDeptManager, setListDeptManager }: any) {
+export default function ModalAddDepartment({ addIsOpen, closeAddModal, listDeptManager, fetchDepartments }: any) {
   const [formData, setFormData] = useState({});
 
   const handleAdd = async () => {
@@ -15,6 +15,7 @@ export default function ModalAddDepartment({ addIsOpen, closeAddModal, listDeptM
     console.log("formdata", formData);
     const res = await postDepartmentApi(formData);
     console.log("create department", res);
+    fetchDepartments();
 
     closeAddModal();
   };

@@ -333,15 +333,15 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
               </TableRow>
             ))}
           </TableBody>
-          {isLoading && (
-            <div className="flex justify-center items-center bg-white h-32">
-              <div className="border-4 border-blue-500 border-t-transparent rounded-full w-16 h-16 animate-spin" />
-            </div>
-          )}
         </Table>
+        {isLoading && (
+          <div className="flex justify-center items-center bg-white h-32">
+            <div className="border-4 border-blue-500 border-t-transparent rounded-full w-16 h-16 animate-spin" />
+          </div>
+        )}
       </div>
 
-      <ModalAddAsset addIsOpen={addIsOpen} closeAddModal={closeAddModal} />
+      <ModalAddAsset addIsOpen={addIsOpen} closeAddModal={closeAddModal} fetchListAsset={fetchListAsset} />
 
       <EditPopup
         editIsOpen={editIsOpen}

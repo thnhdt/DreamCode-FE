@@ -155,7 +155,7 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
         </Table>
       </div>
 
-      <ModalAddSupplier addIsOpen={addIsOpen} closeAddModal={closeAddModal} />
+      <ModalAddSupplier addIsOpen={addIsOpen} closeAddModal={closeAddModal} fetchListSupplier={fetchListSupplier} />
 
       <EditPopup
         editIsOpen={editIsOpen}

@@ -9,7 +9,7 @@ import { createAssetApi, getListCategoryApi, getListSupplierApi } from "../../ap
 
 
 
-export default function ModalAddAsset({ addIsOpen, closeAddModal }: any) {
+export default function ModalAddAsset({ addIsOpen, closeAddModal, fetchListAsset }: any) {
     const [formData, setFormData] = useState({});
     const [listCategory, setListCategory] = useState<any>([]);
     const [suppliers, setSuppliers] = useState<any>([]);
@@ -31,7 +31,7 @@ export default function ModalAddAsset({ addIsOpen, closeAddModal }: any) {
 
         const res = await createAssetApi(formatData);
         console.log("create asset", res);
-
+        fetchListAsset();
         closeAddModal();
     };
 

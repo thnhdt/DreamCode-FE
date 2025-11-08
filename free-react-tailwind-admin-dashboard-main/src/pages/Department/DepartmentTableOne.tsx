@@ -125,7 +125,7 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: Departm
                         setDepartmentChosen(item);
                         openEditModal();
                       }}
-                      className="cursor-pointer hover:bg-blue-50 p-1 rounded-full hover:text-[#6082B6] transition-colors"
+                      className="hover:bg-blue-50 p-1 rounded-full hover:text-[#6082B6] transition-colors cursor-pointer"
                       type="button"
                       aria-label="Edit department"
                     >
@@ -137,7 +137,7 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: Departm
                         setDepartmentChosen(item);
                         openDeleteModal();
                       }}
-                      className="cursor-pointer hover:bg-red-100 p-1 rounded-full hover:text-red-500 transition-colors"
+                      className="hover:bg-red-100 p-1 rounded-full hover:text-red-500 transition-colors cursor-pointer"
                       type="button"
                       aria-label="Delete department"
                     >
@@ -168,6 +168,7 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: Departm
         closeAddModal={closeAddModal}
         listDeptManager={listDeptManager}
         setListDeptManager={setListDeptManager}
+        fetchDepartments={fetchDepartments}
       />
 
       <EditPopup

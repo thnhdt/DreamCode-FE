@@ -9,9 +9,10 @@ import { Modal } from "../../components/ui/modal";
 interface ModalAddSupplierProps {
   addIsOpen: boolean;
   closeAddModal: () => void;
+  fetchListSupplier: () => void;
 }
 
-export default function ModalAddSupplier({ addIsOpen, closeAddModal }: ModalAddSupplierProps) {
+export default function ModalAddSupplier({ addIsOpen, closeAddModal, fetchListSupplier }: ModalAddSupplierProps) {
   const [formData, setFormData] = useState<CreateSupplierRequest>({
     name: "",
     taxCode: "",
@@ -34,7 +35,7 @@ export default function ModalAddSupplier({ addIsOpen, closeAddModal }: ModalAddS
 
     try {
       await createSupplier(formData);
-      
+
       // Reset form
       setFormData({
         name: "",
@@ -43,8 +44,9 @@ export default function ModalAddSupplier({ addIsOpen, closeAddModal }: ModalAddS
         address: "",
         isActive: true,
       });
-      
+
       closeAddModal();
+      fetchListSupplier();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Không thể tạo nhà cung cấp";
       setError(errorMessage);
@@ -78,18 +80,18 @@ export default function ModalAddSupplier({ addIsOpen, closeAddModal }: ModalAddS
         <form className="flex flex-col" onSubmit={(e) => { e.preventDefault(); handleAdd(); }}>
           <div className="px-2 pb-3 h-[450px] overflow-y-auto custom-scrollbar">
             {error && (
-              <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+              <div className="bg-red-50 dark:bg-red-900/20 mb-4 p-3 border border-red-200 dark:border-red-800 rounded-lg">
+                <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
               </div>
             )}
-            
+
             <div>
               <div className="gap-x-6 gap-y-5 grid grid-cols-1 lg:grid-cols-2">
                 <div>
                   <Label>Tên nhà cung cấp *</Label>
-                  <Input 
-                    id="supplierName" 
-                    type="text" 
+                  <Input
+                    id="supplierName"
+                    type="text"
                     value={formData.name}
                     onChange={handleInputChange("name")}
                     required
@@ -97,9 +99,9 @@ export default function ModalAddSupplier({ addIsOpen, closeAddModal }: ModalAddS
                 </div>
                 <div>
                   <Label>Mã số thuế *</Label>
-                  <Input 
-                    id="taxCode" 
-                    type="text" 
+                  <Input
+                    id="taxCode"
+                    type="text"
                     value={formData.taxCode}
                     onChange={handleInputChange("taxCode")}
                     required
@@ -107,9 +109,9 @@ export default function ModalAddSupplier({ addIsOpen, closeAddModal }: ModalAddS
                 </div>
                 <div>
                   <Label>Email *</Label>
-                  <Input 
-                    id="email" 
-                    type="email" 
+                  <Input
+                    id="email"
+                    type="email"
                     value={formData.email}
                     onChange={handleInputChange("email")}
                     required
@@ -117,9 +119,9 @@ export default function ModalAddSupplier({ addIsOpen, closeAddModal }: ModalAddS
                 </div>
                 <div>
                   <Label>Địa chỉ *</Label>
-                  <Input 
-                    id="address" 
-                    type="text" 
+                  <Input
+                    id="address"
+                    type="text"
                     value={formData.address}
                     onChange={handleInputChange("address")}
                     required
@@ -129,17 +131,17 @@ export default function ModalAddSupplier({ addIsOpen, closeAddModal }: ModalAddS
             </div>
           </div>
           <div className="flex lg:justify-end items-center gap-3 mt-6 px-2">
-            <Button 
-              size="sm" 
-              variant="outline" 
+            <Button
+              size="sm"
+              variant="outline"
               onClick={closeAddModal}
               disabled={loading}
               type="button"
             >
               Đóng
             </Button>
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               type="submit"
               disabled={loading}
             >
