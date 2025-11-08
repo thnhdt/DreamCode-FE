@@ -14,7 +14,7 @@ import {
 import ModalAddSupplier from "./ModalAddSupplier";
 import EditPopup from "./EditPopup";
 import ModalConfirmDelete from "../../components/ui/modal/ModalConfirmDelete";
-import { deleteSupplierApi, getListSupplierApi } from "../../api/adminApi";
+// import { deleteSupplierApi, getListSupplierApi } from "../../api/adminApi";
 
 
 
@@ -33,7 +33,7 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
       isActive: false,
     }
 
-    const res = await deleteSupplierApi(data);
+    // const res = await deleteSupplierApi(data);
     console.log("delete", res);
     fetchListSupplier();
     closeDeleteModal();

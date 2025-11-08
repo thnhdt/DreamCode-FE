@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createSupplierApi } from "../../api/adminApi";
+// import { createSupplierApi } from "../../api/adminApi";
 import Input from "../../components/form/input/InputField";
 import Label from "../../components/form/Label";
 import Button from "../../components/ui/button/Button";
@@ -17,7 +17,7 @@ export default function ModalAddSupplier({ addIsOpen, closeAddModal }: any) {
       ...formData,
       isActive: true,
     };
-    const res = await createSupplierApi(newformData);
+    // const res = await createSupplierApi(newformData);
     console.log("create supplier", res);
     closeAddModal();
   };

@@ -1,0 +1,48 @@
+# dependencies
+/node_modules
+/npm-debug.log*
+/yarn-debug.log*
+/yarn-error.log*
+/pnpm-debug.log*
+/lerna-debug.log*
+
+# build output (tùy thuộc vào cấu hình của bạn, thường là 'dist' hoặc 'build')
+/build
+/dist
+/out
+/tmp
+
+# Editor/IDE specific
+# Tệp cấu hình VS Code (bạn đã có thư mục .vscode)
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.vscode/*.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Tệp khóa (Lock files) - package-lock.json và yarn.lock thường NÊN được commit, 
+# nhưng nếu bạn dùng pnpm thì nên bỏ qua pnpm-lock.yaml.
+# Với yarn/npm, hãy giữ lại (Không bỏ vào gitignore)
+
+# History/Cache
+.eslintcache
+.prettiercache
