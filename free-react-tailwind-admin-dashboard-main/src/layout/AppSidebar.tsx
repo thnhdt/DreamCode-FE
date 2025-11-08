@@ -54,7 +54,7 @@ const othersItems: NavItem[] = [
       { name: "Tài sản", path: "/assets", pro: false },
       { name: "Tài sản phòng ban", path: "/department-assets", pro: false },
       { name: "Khấu hao tài sản", path: "/depreciation", pro: false },
-      { name: "Báo cáo tài sản", path: "/asset-report", pro: false },
+    //   { name: "Báo cáo tài sản", path: "/asset-report", pro: false },
       { name: "Người dùng", path: "/users", pro: false },
       { name: "Quyền & Vai trò", path: "/roles", pro: false },
       { name: "Loại", path: "/category", pro: false },
