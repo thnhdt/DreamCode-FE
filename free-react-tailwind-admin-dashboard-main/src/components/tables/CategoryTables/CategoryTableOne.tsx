@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Input from "../../form/input/InputField";
 import Label from "../../form/Label";
 import Button from "../../ui/button/Button";
@@ -13,79 +13,48 @@ import {
   TableHeader,
   TableRow,
 } from "../../ui/table";
+import { createCategoryApi, deleteCategoryApi, getListCategoryApi } from "../../../api/adminApi";
 
-interface Order {
-  id: number;
-  typeName: string;
-  typeCode: string;
-}
 
-// Define the table data using the interface
-const typeList: Order[] = [
-  {
-    id: 1,
-    typeName: "Laptop / Máy tính xách tay",
-    typeCode: "LAPTOP",
-  },
-  {
-    id: 2,
-    typeName: "Máy tính để bàn",
-    typeCode: "DESKTOP",
-  },
-  {
-    id: 3,
-    typeName: "Màn hình / Monitor",
-    typeCode: "MONITOR",
-  },
-  {
-    id: 4,
-    typeName: "Máy in",
-    typeCode: "PRINTER",
-  },
-  {
-    id: 5,
-    typeName: "Thiết bị mạng (Router / Switch)",
-    typeCode: "NETWORK",
-  },
-  {
-    id: 6,
-    typeName: "Điện thoại bàn / Tổng đài VoIP",
-    typeCode: "PHONE",
-  },
-  {
-    id: 7,
-    typeName: "Bàn làm việc",
-    typeCode: "DESK",
-  },
-  {
-    id: 8,
-    typeName: "Ghế văn phòng",
-    typeCode: "CHAIR",
-  },
-  {
-    id: 9,
-    typeName: "Tủ / Kệ hồ sơ",
-    typeCode: "STORAGE",
-  },
-  {
-    id: 10,
-    typeName: "Xe công tác / Phương tiện di chuyển",
-    typeCode: "VEHICLE",
-  },
-];
+
 
 export default function CategoryTableOne({ isOpen, closeModal }: any) {
   const [deleteIsOpen, setDeleteIsOpen] = useState<boolean>(false);
+  const [listCategory, setListCategory] = useState<any>([]);
+  const [formdata, setFormData] = useState({});
+  const [categoryChosen, setCategoryChosen] = useState<any>(null);
 
-  const handleSave = () => {
+  const handleCreate = async () => {
     // Handle save logic here
     console.log("Saving changes...");
+    const res = await createCategoryApi(formdata);
+    console.log("create category", res);
     closeModal();
   };
 
-  const handleDelete = () => {
+  const handleSelectName = () => {
+    const name = document.getElementById("categoryName") as HTMLInputElement;
+    const categoryName = name.value;
+    console.log("name", categoryName);
+    setFormData({ ...formdata, name: categoryName });
+  };
+
+  const handleSelectCode = () => {
+    const code = document.getElementById("categoryCode") as HTMLInputElement;
+    const categoryCode = code.value;
+    console.log("code", categoryCode);
+    setFormData({ ...formdata, code: categoryCode });
+  };
+
+  const handleDelete = async () => {
     // Handle save logic here
     console.log("Delete changes...");
+    const res = await deleteCategoryApi(categoryChosen);
+    // if (res.status !== 200) {
+    //   alert("Xóa loại tài sản thất bại");
+    //   return;
+    // }
+    fetchData();
     closeDeleteModal();
   };
 
@@ -96,6 +65,19 @@ export default function CategoryTableOne({ isOpen, closeModal }: any) {
   const closeDeleteModal = () => {
     setDeleteIsOpen(false);
   };
+
+  const fetchData = async () => {
+    // Fetch data logic here
+    const res = await getListCategoryApi();
+    console.log("Category List:", res.data.content);
+    setListCategory(res.data.content);
+  }
+
+  useEffect(() => {
+
+    fetchData();
+  }, [])
+
 
   return (
     <div className="bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-xl overflow-hidden">
@@ -127,18 +109,21 @@ export default function CategoryTableOne({ isOpen, closeModal }: any) {
 
           {/* Table Body */}
           <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-            {typeList.map((order) => (
-              <TableRow key={order.id}>
+            {listCategory?.map((category: any) => (
+              <TableRow key={category.id}>
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
-                  {order.typeName}
+                  {category.name}
                 </TableCell>
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
-                  {order.typeCode}
+                  {category.id}
                 </TableCell>
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400 text-start">
                   <div
                     className="hover:bg-red-100 ml-3 p-1 rounded-full w-fit hover:text-red-500 cursor-pointer"
-                    onClick={openDeleteModal}
+                    onClick={() => {
+                      setCategoryChosen(category);
+                      openDeleteModal();
+                    }}
                   >
                     <MdDelete size={24} />
                   </div>
@@ -162,12 +147,12 @@ export default function CategoryTableOne({ isOpen, closeModal }: any) {
                 <div className="gap-x-6 gap-y-5 grid grid-cols-1 lg:grid-cols-2">
                   <div>
                     <Label>Tên loại</Label>
-                    <Input type="text" />
+                    <Input id="categoryName" type="text" onChange={handleSelectName} />
                   </div>
 
                   <div>
                     <Label>Mã loại</Label>
-                    <Input type="text" />
+                    <Input id="categoryCode" type="text" onChange={handleSelectCode} />
                   </div>
                 </div>
               </div>
@@ -176,7 +161,7 @@ export default function CategoryTableOne({ isOpen, closeModal }: any) {
               <Button size="sm" variant="outline" onClick={closeModal}>
                 Đóng
               </Button>
-              <Button size="sm" onClick={handleSave}>
+              <Button size="sm" onClick={handleCreate}>
                 Lưu thay đổi
               </Button>
             </div>
@@ -186,9 +171,8 @@ export default function CategoryTableOne({ isOpen, closeModal }: any) {
 
       {/* popup confirm delete */}
       <div
-        className={`fixed inset-0 ml-[290px] flex justify-center items-center bg-black/40 bg-opacity-50 ${
-          deleteIsOpen ? "block" : "hidden"
-        }`}
+        className={`fixed inset-0 ml-[290px] flex justify-center items-center bg-black/40 bg-opacity-50 ${deleteIsOpen ? "block" : "hidden"
+          }`}
       >
         <div className="bg-white dark:bg-gray-900 mx-4 p-4 lg:p-11 rounded-3xl w-full max-w-[500px] overflow-y-auto no-scrollbar">
           <div className="px-2 pr-14">

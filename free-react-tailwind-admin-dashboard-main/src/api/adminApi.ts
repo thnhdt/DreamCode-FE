@@ -58,7 +58,22 @@ export async function getListAssetApi() {
 }
 
 export async function getListCategoryApi() {
-    const res = await axiosInstance.get(`${API_BACKEND_URL2}/category`);
+    const res = await axiosInstance.get(`${API_BACKEND_URL2}/categories`);
+    return res;
+}
+
+export async function createCategoryApi(data: any) {
+    const res = await axiosInstance.post(
+        `${API_BACKEND_URL2}/categories`,
+        data
+    );
+    return res;
+}
+
+export async function deleteCategoryApi(data: any) {
+    const res = await axiosInstance.delete(
+        `${API_BACKEND_URL2}/categories/${data.id}`
+    );
     return res;
 }
 

@@ -38,16 +38,22 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const query = e.target.value.toLowerCase();
+    const query = e.target.value;
 
-    const filteredAssets = assets.filter(
+    const data = assets.filter(
       (asset: any) =>
-        asset.assetName.toLowerCase().includes(query) ||
-        asset.assetCode.toLowerCase().includes(query) ||
-        asset.user.toLowerCase().includes(query)
+        asset.name?.includes(query) ||
+        asset.code?.includes(query) ||
+        asset.user?.includes(query)
     );
 
-    setFilteredAssets(filteredAssets);
+    console.log(assets);
+
+
+    console.log(query);
+
+
+    setFilteredAssets(data);
   };
 
   const handleDownloadExcel = () => {
