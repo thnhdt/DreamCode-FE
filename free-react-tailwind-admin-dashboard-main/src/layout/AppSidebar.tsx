@@ -22,26 +22,26 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  {
-    icon: <GridIcon />,
-    name: "Dashboard tổng quan",
-    path: "/dashboard-overview",
-  },
-  {
-    icon: <GridIcon />,
-    name: "Dashboard vận hành",
-    path: "/dashboard-operations",
-  },
-  {
-    icon: <UserCircleIcon />,
-    name: "Trang Admin",
-    path: "/new",
-  },
-  {
-    icon: <BoxIcon />,
-    name: "Tài sản của tôi",
-    path: "/my-assets",
-  },
+//   {
+//     icon: <GridIcon />,
+//     name: "Dashboard tổng quan",
+//     path: "/dashboard-overview",
+//   },
+//   {
+//     icon: <GridIcon />,
+//     name: "Dashboard vận hành",
+//     path: "/dashboard-operations",
+//   },
+//   {
+//     icon: <UserCircleIcon />,
+//     name: "Trang Admin",
+//     path: "/new",
+//   },
+//   {
+//     icon: <BoxIcon />,
+//     name: "Tài sản của tôi",
+//     path: "/my-assets",
+//   },
 ];
 
 const othersItems: NavItem[] = [
@@ -53,7 +53,7 @@ const othersItems: NavItem[] = [
       { name: "Nhà cung cấp", path: "/suppliers", pro: false },
       { name: "Tài sản", path: "/assets", pro: false },
       { name: "Tài sản phòng ban", path: "/department-assets", pro: false },
-      { name: "Khấu hao tài sản", path: "/depreciation", pro: false },
+    //   { name: "Khấu hao tài sản", path: "/depreciation", pro: false },
     //   { name: "Báo cáo tài sản", path: "/asset-report", pro: false },
       { name: "Người dùng", path: "/users", pro: false },
       { name: "Quyền & Vai trò", path: "/roles", pro: false },
@@ -65,8 +65,8 @@ const othersItems: NavItem[] = [
     name: "Authentication",
     subItems: [
       { name: "Sign In", path: "/signin", pro: false },
-      { name: "Sign Up", path: "/signup", pro: false },
-      { name: "Cài đặt báo cáo", path: "/report-settings", pro: false },
+    //   { name: "Sign Up", path: "/signup", pro: false },
+    //   { name: "Cài đặt báo cáo", path: "/report-settings", pro: false },
     ],
   },
 ];
