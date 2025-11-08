@@ -13,7 +13,9 @@ import { UserResponse, DepartmentResponse, PaginatedResponse } from "../types/ad
 
 export default function UserManagement() {
   const [users, setUsers] = useState<UserResponse[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<UserResponse[]>([]);
   const [departments, setDepartments] = useState<DepartmentResponse[]>([]);
+  const [selectedDepartment, setSelectedDepartment] = useState<string>("");
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -46,9 +48,11 @@ export default function UserManagement() {
           ? usersData
           : (usersData as PaginatedResponse<UserResponse>).data || [];
         setUsers(usersList);
+        setFilteredUsers(usersList);
 
         // Fetch departments
         const deptsData = await getActiveDepartments();
+        console.log("hehe", deptsData);
         const deptsList = Array.isArray(deptsData)
           ? deptsData
           : (deptsData as PaginatedResponse<DepartmentResponse>).data || [];
@@ -64,6 +68,18 @@ export default function UserManagement() {
 
     fetchData();
   }, []);
+
+  // Filter users when department selection changes
+  useEffect(() => {
+    if (!selectedDepartment || selectedDepartment === "all") {
+      setFilteredUsers(users);
+    } else {
+      const filtered = users.filter(
+        (user) => user.department?.id?.toString() === selectedDepartment
+      );
+      setFilteredUsers(filtered);
+    }
+  }, [selectedDepartment, users]);
 
   const openAdd = () => {
     setEditUser(null);
@@ -155,21 +171,57 @@ export default function UserManagement() {
     label: d.name,
   }));
 
+  const departmentFilterOptions = [
+    { value: "all", label: "Tất cả phòng ban" },
+    ...departmentOptions,
+  ];
+
   return (
     <>
       <PageMeta title="Quản lý người dùng | Dream Code" description="Thêm, sửa người dùng" />
       <PageBreadcrumb pageTitle="Quản lý người dùng" />
       <div className="space-y-6">
         <ComponentCard title="Danh sách người dùng">
-          <div className="mb-4 flex items-center justify-between">
-            <Button onClick={openAdd} disabled={loading}>
-              Thêm người dùng
-            </Button>
+          <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <Button onClick={openAdd} disabled={loading}>
+                Thêm người dùng
+              </Button>
+
+              {/* Department Filter */}
+              <div className="w-full sm:w-64">
+                <Select
+                  options={departmentFilterOptions}
+                  placeholder="Lọc theo phòng ban"
+                  onChange={(val) => setSelectedDepartment(val)}
+                  defaultValue="all"
+                />
+              </div>
+            </div>
+
             {error && (
               <div className="text-sm text-red-500">{error}</div>
             )}
           </div>
-          
+
+          {/* Show filter info */}
+          {selectedDepartment && selectedDepartment !== "all" && (
+            <div className="mb-3 flex items-center gap-2">
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                Đang hiển thị: {filteredUsers.length} người dùng trong phòng{" "}
+                <span className="font-semibold">
+                  {departments.find((d) => d.id.toString() === selectedDepartment)?.name}
+                </span>
+              </span>
+              <button
+                onClick={() => setSelectedDepartment("all")}
+                className="text-sm text-brand-500 hover:text-brand-600 underline"
+              >
+                Xóa bộ lọc
+              </button>
+            </div>
+          )}
+
           {loading && !users.length ? (
             <div className="text-center py-8 text-gray-500">Đang tải...</div>
           ) : (
@@ -196,14 +248,16 @@ export default function UserManagement() {
                     </TableRow>
                   </TableHeader>
                   <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                    {users.length === 0 ? (
+                    {filteredUsers.length === 0 ? (
                       <TableRow>
-                        <TableCell className="px-5 py-8 text-center text-gray-500">
-                          <div className="col-span-5">Không có dữ liệu</div>
+                        <TableCell colSpan={5} className="px-5 py-8 text-center text-gray-500">
+                          {selectedDepartment && selectedDepartment !== "all"
+                            ? "Không có người dùng nào trong phòng ban này"
+                            : "Không có dữ liệu"}
                         </TableCell>
                       </TableRow>
                     ) : (
-                      users.map((u) => (
+                      filteredUsers.map((u) => (
                         <TableRow key={u.id}>
                           <TableCell className="px-5 py-4 text-gray-800 text-theme-sm dark:text-white/90 font-medium">
                             {u.userName}
@@ -216,11 +270,10 @@ export default function UserManagement() {
                           </TableCell>
                           <TableCell className="px-5 py-4">
                             <span
-                              className={`px-2 py-1 text-xs rounded-full ${
-                                u.isActive
-                                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                  : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                              }`}
+                              className={`px-2 py-1 text-xs rounded-full ${u.isActive
+                                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                                }`}
                             >
                               {u.isActive ? "Hoạt động" : "Không hoạt động"}
                             </span>
@@ -253,7 +306,7 @@ export default function UserManagement() {
           <h4 className="mb-4 text-2xl font-semibold text-gray-800 dark:text-white/90">
             {editUser ? "Chỉnh sửa người dùng" : "Thêm người dùng"}
           </h4>
-          
+
           {error && (
             <div className="mb-4 p-3 text-sm text-red-500 bg-red-50 dark:bg-red-900/20 rounded-lg">
               {error}
@@ -273,7 +326,7 @@ export default function UserManagement() {
                 disabled={loading}
               />
             </div>
-            
+
             {!editUser && (
               <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -288,7 +341,7 @@ export default function UserManagement() {
                 />
               </div>
             )}
-            
+
             {editUser && (
               <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -310,6 +363,7 @@ export default function UserManagement() {
               </label>
               <div className={loading ? "opacity-50 pointer-events-none" : ""}>
                 <Select
+                  key={`dept-${form.departmentId}-${editUser?.id || 'new'}`} // Thêm key để force re-render
                   options={departmentOptions}
                   placeholder="Chọn phòng ban"
                   onChange={(val) => setForm((f) => ({ ...f, departmentId: val }))}
@@ -317,7 +371,6 @@ export default function UserManagement() {
                 />
               </div>
             </div>
-
             <div>
               <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                 Vai trò <span className="text-red-500">*</span>
@@ -327,7 +380,7 @@ export default function UserManagement() {
                   options={roleOptions}
                   placeholder="Chọn vai trò"
                   onChange={(val) => setForm((f) => ({ ...f, role: val }))}
-                  defaultValue={form.role}
+                  value={form.role} // Thêm value thay vì defaultValue
                 />
               </div>
             </div>
@@ -369,5 +422,3 @@ export default function UserManagement() {
     </>
   );
 }
-
-

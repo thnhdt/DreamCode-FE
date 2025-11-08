@@ -14,7 +14,7 @@ import {
 import ModalAddSupplier from "./ModalAddSupplier";
 import EditPopup from "./EditPopup";
 import ModalConfirmDelete from "../../components/ui/modal/ModalConfirmDelete";
-// import { deleteSupplierApi, getListSupplierApi } from "../../api/adminApi";
+import { deleteSupplierApi, getListSupplierApi } from "../../api/adminApi";
 
 
 

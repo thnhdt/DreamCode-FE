@@ -5,14 +5,19 @@ import ComponentCard from "../components/common/ComponentCard";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../components/ui/table";
 import Badge from "../components/ui/badge/Badge";
 import Button from "../components/ui/button/Button";
-import { getSuppliers, updateSupplier } from "../services/admin";
+import { getSuppliers, updateSupplier, deleteSupplier } from "../services/admin";
 import { SupplierResponse } from "../types/supplier.types";
 import { PaginatedResponse } from "../types/admin.types";
+import ModalAddSupplier from "../components/supplier/ModalAddSupplier";
+import EditPopup from "../components/supplier/EditPopup";
 
 export default function SupplierManagement() {
   const [suppliers, setSuppliers] = useState<SupplierResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [addIsOpen, setAddIsOpen] = useState(false);
+  const [editIsOpen, setEditIsOpen] = useState(false);
+  const [selectedSupplier, setSelectedSupplier] = useState<SupplierResponse | null>(null);
 
   // Fetch suppliers from API
   const fetchSuppliers = async () => {
@@ -57,6 +62,49 @@ export default function SupplierManagement() {
     }
   };
 
+  const handleDelete = async (id: number) => {
+    if (!confirm("Bạn có chắc chắn muốn xóa nhà cung cấp này?")) return;
+    
+    try {
+      await deleteSupplier(id);
+      setSuppliers(suppliers.filter((s) => s.id !== id));
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Không thể xóa nhà cung cấp";
+      setError(errorMessage);
+      console.error("Error deleting supplier:", err);
+    }
+  };
+
+  const openAddModal = () => setAddIsOpen(true);
+  const closeAddModal = () => {
+    setAddIsOpen(false);
+    fetchSuppliers(); // Refresh list after adding
+  };
+
+  const openEditModal = (supplier: SupplierResponse) => {
+    setSelectedSupplier(supplier);
+    setEditIsOpen(true);
+  };
+  
+  const closeEditModal = () => {
+    setEditIsOpen(false);
+    setSelectedSupplier(null);
+  };
+
+  const handleEdit = async (updatedData: Partial<SupplierResponse>) => {
+    if (!selectedSupplier) return;
+    
+    try {
+      const updatedSupplier = await updateSupplier(selectedSupplier.id, updatedData);
+      setSuppliers(suppliers.map((s) => (s.id === selectedSupplier.id ? updatedSupplier : s)));
+      closeEditModal();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Không thể cập nhật nhà cung cấp";
+      setError(errorMessage);
+      console.error("Error updating supplier:", err);
+    }
+  };
+
   return (
     <>
       <PageMeta
@@ -66,7 +114,14 @@ export default function SupplierManagement() {
       <PageBreadcrumb pageTitle="Quản lý Nhà cung cấp" />
       
       <div className="space-y-6">
-        <ComponentCard title="Danh sách Nhà cung cấp">
+        <ComponentCard 
+          title="Danh sách Nhà cung cấp"
+          extra={
+            <Button size="sm" onClick={openAddModal}>
+              Thêm nhà cung cấp
+            </Button>
+          }
+        >
           {loading ? (
             <div className="py-12 text-center">
               <p className="text-gray-500 dark:text-gray-400">Đang tải dữ liệu...</p>
@@ -137,7 +192,7 @@ export default function SupplierManagement() {
                   <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                     {suppliers.length === 0 && !loading ? (
                       <TableRow>
-                        <TableCell className="px-5 py-8 text-center text-gray-500 dark:text-gray-400">
+                        <TableCell colSpan={7} className="px-5 py-8 text-center text-gray-500 dark:text-gray-400">
                           Không có dữ liệu
                         </TableCell>
                       </TableRow>
@@ -174,13 +229,29 @@ export default function SupplierManagement() {
                             </Badge>
                           </TableCell>
                           <TableCell className="px-5 py-4">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleToggleStatus(supplier.id)}
-                            >
-                              {supplier.isActive ? "Vô hiệu hóa" : "Kích hoạt"}
-                            </Button>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => openEditModal(supplier)}
+                              >
+                                Sửa
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleToggleStatus(supplier.id)}
+                              >
+                                {supplier.isActive ? "Vô hiệu hóa" : "Kích hoạt"}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleDelete(supplier.id)}
+                              >
+                                Xóa
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))
@@ -198,7 +269,14 @@ export default function SupplierManagement() {
           )}
         </ComponentCard>
       </div>
+
+      <ModalAddSupplier addIsOpen={addIsOpen} closeAddModal={closeAddModal} />
+      <EditPopup 
+        editIsOpen={editIsOpen} 
+        closeEditModal={closeEditModal}
+        handleEdit={handleEdit}
+        supplier={selectedSupplier}
+      />
     </>
   );
 }
-
