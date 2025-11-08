@@ -120,7 +120,7 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: Departm
                 </TableCell>
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm">
                   <div className="flex items-center gap-3 w-fit">
-                    <button
+                    {/* <button
                       onClick={() => {
                         setDepartmentChosen(item);
                         openEditModal();
@@ -130,7 +130,7 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: Departm
                       aria-label="Edit department"
                     >
                       <FiEdit size={24} />
-                    </button>
+                    </button> */}
 
                     <button
                       onClick={() => {

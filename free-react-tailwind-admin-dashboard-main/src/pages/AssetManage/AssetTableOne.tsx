@@ -20,7 +20,7 @@ import EditPopup from "./EditPopup";
 import ModalConfirmDelete from "../../components/ui/modal/ModalConfirmDelete";
 import FilterPopup from "./FilterPopup.tsx";
 import HistoryModal from "./HistoryModal.tsx";
-import { deleteAssetApi, getListAssetApi } from "../../api/adminApi.ts";
+import { assignAssetApi, deleteAssetApi, getListAssetApi } from "../../api/adminApi.ts";
 
 
 
@@ -85,9 +85,10 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
     setDeleteIsOpen(false);
   };
 
-  const handleEdit = () => {
+  const handleEdit = async (formData: any) => {
     // Handle edit logic here
-    console.log("Editing item...");
+    const res = await assignAssetApi(formData)
+
     setEditIsOpen(false);
   };
 
@@ -167,7 +168,7 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
             </div>
           </form>
         </div>
-        <button
+        {/* <button
           className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-white/[0.03] shadow-theme-xs px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg font-medium text-gray-700 text-theme-sm hover:text-gray-800 dark:hover:text-gray-200 dark:text-gray-400"
           onClick={openFilterModal}
         >
@@ -207,7 +208,7 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
             />
           </svg>
           Filter
-        </button>
+        </button> */}
         <button
           className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-white/[0.03] shadow-theme-xs px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg font-medium text-gray-700 text-theme-sm hover:text-gray-800 dark:hover:text-gray-200 dark:text-gray-400"
           onClick={() => {
@@ -307,7 +308,10 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                   <div className="flex items-center gap-2 w-fit cursor-pointer">
                     <FiEdit
-                      onClick={openEditModal}
+                      onClick={() => {
+                        setSelectedAsset(asset);
+                        openEditModal();
+                      }}
                       size={30}
                       className="hover:bg-blue-50 p-1 rounded-full hover:text-[#6082B6]"
                     />
@@ -347,6 +351,7 @@ export default function AssetTableOne({ addIsOpen, closeAddModal }: any) {
         editIsOpen={editIsOpen}
         closeEditModal={closeEditModal}
         handleEdit={handleEdit}
+        selectedAsset={selectedAsset}
       />
 
       <FilterPopup

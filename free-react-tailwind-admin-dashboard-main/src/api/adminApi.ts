@@ -147,6 +147,14 @@ export async function deleteAssetApi(data: any) {
     return res;
 }
 
+export async function assignAssetApi(data: any) {
+    const res = await axiosInstance.post(
+        `${API_BACKEND_URL2}/assets/assign`,
+        data
+    );
+    return res;
+}
+
 export async function getListCategoryApi() {
     try {
         const response = await axiosInstance.get(

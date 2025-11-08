@@ -134,11 +134,11 @@ export default function DepartmentTableOne({ addIsOpen, closeAddModal }: any) {
                 </TableCell>
                 <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                   <div className="flex items-center gap-3 w-fit cursor-pointer">
-                    <FiEdit
+                    {/* <FiEdit
                       onClick={openEditModal}
                       size={30}
                       className="hover:bg-blue-50 p-1 rounded-full hover:text-[#6082B6]"
-                    />
+                    /> */}
                     <MdDelete
                       onClick={() => {
                         openDeleteModal();
