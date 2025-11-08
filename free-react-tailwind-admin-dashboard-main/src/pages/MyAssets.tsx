@@ -1,3 +1,4 @@
+// ...existing code...
 import { useState, useEffect } from "react";
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import PageMeta from "../components/common/PageMeta";
@@ -32,8 +33,22 @@ export default function MyAssets() {
       setError("");
       try {
         const data = await getMyAssets();
-        // Handle paginated response
-        const assetsList = (data as PaginatedResponse<AssetResponse>).data || [];
+        // Support different shapes returned by backend:
+        // - array [...],
+        // - { content: [...] },
+        // - { data: [...] }
+        let assetsList: AssetResponse[] = [];
+        if (Array.isArray(data)) {
+          assetsList = data as AssetResponse[];
+        } else if ((data as any)?.content) {
+          assetsList = (data as any).content as AssetResponse[];
+        } else if ((data as any)?.data) {
+          assetsList = (data as any).data as AssetResponse[];
+        } else {
+          // try to find first array-like prop
+          const maybeArray = Object.values(data ?? {}).find((v) => Array.isArray(v));
+          assetsList = (maybeArray as AssetResponse[]) || [];
+        }
         setMyAssets(assetsList);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "Không thể tải dữ liệu tài sản";
@@ -50,6 +65,7 @@ export default function MyAssets() {
 
   const handleOpenReport = (assetId?: number) => {
     if (assetId) setSelectedAssetId(assetId);
+    setError(""); // reset previous errors
     openModal();
   };
 
@@ -81,6 +97,7 @@ export default function MyAssets() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
+      case "IN_USE":
       case "ASSIGNED":
         return { color: "success" as const, label: "Đang sử dụng" };
       case "MAINTENANCE":
@@ -88,7 +105,7 @@ export default function MyAssets() {
       case "LOST":
         return { color: "error" as const, label: "Mất" };
       default:
-        return { color: "success" as const, label: "Đang sử dụng" };
+        return { color: "success" as const, label: status ? status : "Không xác định" };
     }
   };
 
@@ -241,4 +258,4 @@ export default function MyAssets() {
     </>
   );
 }
-
+// ...existing code...

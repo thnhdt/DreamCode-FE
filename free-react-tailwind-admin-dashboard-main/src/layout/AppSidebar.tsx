@@ -37,11 +37,11 @@ const navItems: NavItem[] = [
 //     name: "Trang Admin",
 //     path: "/new",
 //   },
-//   {
-//     icon: <BoxIcon />,
-//     name: "Tài sản của tôi",
-//     path: "/my-assets",
-//   },
+  {
+    icon: <BoxIcon />,
+    name: "Tài sản của tôi",
+    path: "/my-assets",
+  },
 ];
 
 const othersItems: NavItem[] = [
